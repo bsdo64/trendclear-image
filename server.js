@@ -38,7 +38,7 @@ var options = {
 // init the uploader
 var uploader = require('blueimp-file-upload-expressjs')(options);
 
-app.use(express.static('public/uploaded/files'));
+app.use(express.static('public'));
 
 app.get('/upload', function (req, res) {
   uploader.get(req, res, function (err, obj) {
