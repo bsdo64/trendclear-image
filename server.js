@@ -1,4 +1,5 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 
 // config the uploader
@@ -33,6 +34,7 @@ var options = {
 // init the uploader
 var uploader = require('./file-uploader')(options);
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 app.get('/upload', function (req, res) {
@@ -54,7 +56,7 @@ app.post('/upload', function (req, res) {
 });
 
 // the path SHOULD match options.uploadUrl
-app.delete('/uploaded/files/:name', function (req, res) {
+app.delete('/uploaded/files', function (req, res) {
   uploader.delete(req, res, function (err, obj) {
     res.json({error: err, obj: obj});
   });

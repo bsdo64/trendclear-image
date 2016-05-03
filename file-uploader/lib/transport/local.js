@@ -1,5 +1,6 @@
 /*jslint node: true */
 var fs = require('fs');
+var formidable = require('formidable');
 var FileInfo = require('../fileinfo.js');
 var lwip = require('lwip');
 var path = require('path');
@@ -121,8 +122,9 @@ module.exports = function(opts) {
         delete: function(req, res, callback) {
             var options = this.options;
             var fileName = '';
+
             if (req.url.slice(0, options.uploadUrl.length) === options.uploadUrl) {
-                fileName = path.basename(decodeURIComponent(req.url));
+                fileName = path.basename(decodeURIComponent(req.body.file));
                 if (fileName[0] !== '.') {
                     fs.access(options.uploadDir + '/' + fileName, fs.F_OK, function (err) {
                         if (err) {
