@@ -11,6 +11,7 @@
   "dependencies": {
     "aws-sdk": "^2.3.7",
     "blueimp-file-upload-expressjs": "https://github.com/robonyong/blueimp-file-upload-expressjs",
+    "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "formidable": "^1.0.17",
     "imagemagick": "^0.1.3",

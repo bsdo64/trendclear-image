@@ -1,4 +1,5 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 
 // config the uploader
@@ -6,6 +7,7 @@ var options = {
   tmpDir:  __dirname + '/public/uploaded/tmp',
   uploadDir: __dirname + '/public/uploaded/files',
   uploadUrl:  '/uploaded/files/',
+  proxy: '/image',
   maxPostSize: 11000000000, // 11 GB
   minFileSize:  1,
   maxFileSize:  10000000000, // 10 GB
@@ -37,19 +39,14 @@ var options = {
     allowHeaders: 'Content-Type, Content-Range, Content-Disposition'
   },
   storage : {
-    type : 'local',
-    aws : {
-      accessKeyId :  'xxxxxxxxxxxxxxxxx',
-      secretAccessKey : 'xxxxxxxxxxxxxxxxx',
-      region : 'us-east-1',//make sure you know the region, else leave this option out
-      bucketName : 'xxxxxxxxxxxxxxxxx'
-    }
+    type : 'local'
   }
 };
 
 // init the uploader
-var uploader = require('blueimp-file-upload-expressjs')(options);
+var uploader = require('./file-uploader')(options);
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 app.get('/upload', function (req, res) {
@@ -71,9 +68,9 @@ app.post('/upload', function (req, res) {
 });
 
 // the path SHOULD match options.uploadUrl
-app.delete('/uploaded/files/:name', function (req, res) {
+app.delete('/uploaded/files', function (req, res) {
   uploader.delete(req, res, function (err, obj) {
-    res.json({error: err});
+    res.json({error: err, obj: obj});
   });
 });
 
