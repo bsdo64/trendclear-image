@@ -15,9 +15,21 @@ var options = {
   inlineFileTypes:  /\.(gif|jpe?g|png)/i,
   imageTypes:  /\.(gif|jpe?g|png)/i,
   copyImgAsThumb : true, // required
-  imageVersions :{
-    maxWidth : 200,
-    maxHeight : 200
+  imageVersions: {
+    maxWidth: 200,
+    maxHeight: 'auto',
+    "large" : {
+      width : 600,
+      height : 'auto'
+    },
+    "medium" : {
+      width : 300,
+      height : 'auto'
+    },
+    "small" : {
+      width : 150,
+      height : 'auto'
+    }
   },
   accessControl: {
     allowOrigin: '*',
