@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var logger = require('morgan');
 var app = express();
 
 // config the uploader
@@ -46,10 +47,11 @@ var options = {
 // init the uploader
 var uploader = require('./file-uploader')(options);
 
+app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
-app.get('/upload', function (req, res) {
+app.get('/uploaded', function (req, res) {
   uploader.get(req, res, function (err, obj) {
     if (!err) {
       res.json(obj);
