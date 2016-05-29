@@ -65,6 +65,19 @@ app.post('/upload', function (req, res) {
     if (!error) {
       res.json(obj);
     }
+
+    if (error) {
+      let errorMessage;
+      if (error.message === 'JPEG decoding error') {
+        errorMessage = '올바른 이미지 형식이 아닙니다';
+      }
+
+
+      res.json({
+        error: true,
+        message: errorMessage
+      });
+    }
   });
 
 });
