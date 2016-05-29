@@ -3,6 +3,7 @@ var fs = require('fs');
 var formidable = require('formidable');
 var FileInfo = require('../fileinfo.js');
 var lwip = require('lwip');
+// var gm = require('gm');
 var path = require('path');
 var async = require('async');
 
@@ -41,6 +42,44 @@ module.exports = function(opts) {
             var options = api.options;
             var retVal = versionObj;
 
+            // gm(options.uploadDir + '/' + versionObj.fileInfo.name)
+            //   .size(function (error, size) {
+            //       if (error) return cbk(error, versionObj.version);
+            //
+            //       //update pics width and height
+            //       if (!retVal.fileInfo.width) {
+            //           retVal.fileInfo.width = size.width || 50; //incase we don't get a valid width
+            //           retVal.fileInfo.height = size.height || retVal.fileInfo.width;
+            //       }
+            //
+            //       var opts0 = options.imageVersions[versionObj.version];
+            //       if (opts0.height == 'auto') {
+            //           retVal.width = opts0.width;
+            //           retVal.height = (opts0.width / retVal.fileInfo.width) * retVal.fileInfo.height;
+            //           gm(options.uploadDir + '/' + versionObj.fileInfo.name)
+            //             .resize(opts0.width, retVal.height)
+            //             .write(options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name, function(err) {
+            //               if (err) {
+            //                   cbk(err, retVal);
+            //                   return;
+            //               }
+            //               cbk(null, retVal);
+            //           });
+            //           return
+            //       }
+            //
+            //       retVal.width = opts0.width;
+            //       retVal.height = opts0.height;
+            //       gm(options.uploadDir + '/' + versionObj.fileInfo.name)
+            //         .resize(opts0.width, opts0.height)
+            //         .write(options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name, function(err) {
+            //           if (err) {
+            //               return cbk(err, retVal);
+            //           }
+            //           cbk(null, retVal);
+            //       });
+            //   });
+            
             lwip.open(options.uploadDir + '/' + versionObj.fileInfo.name, function(error, image) {
 
                 if (error) return cbk(error, versionObj.version);
