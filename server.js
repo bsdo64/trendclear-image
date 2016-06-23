@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var compression = require('compression');
 var logger = require('morgan');
 var app = express();
 
@@ -47,9 +48,10 @@ var options = {
 // init the uploader
 var uploader = require('./file-uploader')(options);
 
-app.use(logger('dev'));
+app.use(compression());
+app.use(logger('common'));
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.static('public'));
+app.use(express.static('public', {maxAge: '1d'}));
 
 app.get('/uploaded', function (req, res) {
   uploader.get(req, res, function (err, obj) {
