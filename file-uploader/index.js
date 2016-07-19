@@ -117,5 +117,9 @@ function uploadService(opts) {
         transporter.delete(req, res, callback);
     };
 
+    fileUploader.localDelete = function(file, callback) {
+        transporter.localDelete(file, callback);
+    };
+
     return fileUploader;
 }

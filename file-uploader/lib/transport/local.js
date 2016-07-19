@@ -184,6 +184,26 @@ module.exports = function(opts) {
                 }
             }
             callback(new Error('File name invalid:' + fileName), null);
+        },
+        localDelete: function (fileObj, callback) {
+            var options = this.options;
+            var fileName = fileObj.name;
+
+            if (fileName !== '.') {
+                fs.access(options.uploadDir + '/' + fileName, fs.F_OK, function (err) {
+                    if (err) {
+                        callback(new Error('File doesn\'t exist!'), null);
+                        return ;
+                    }
+                    fs.unlink(options.uploadDir + '/' + fileName, function(ex) {
+                        callback(null, {
+                            success: true
+                        });
+                    });
+                });
+                return;
+            }
+            callback(new Error('File name invalid:' + fileName), null);
         }
     };
 

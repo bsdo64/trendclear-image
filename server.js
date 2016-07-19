@@ -65,20 +65,37 @@ app.get('/uploaded', function (req, res) {
 app.post('/upload', function (req, res) {
   uploader.post(req, res, function (error, obj, redirect) {
     if (!error) {
-      res.json(obj);
+      return res.json(obj);
     }
 
     if (error) {
       let errorMessage;
       if (error.message === 'JPEG decoding error') {
-        errorMessage = '올바른 이미지 형식이 아닙니다';
+        errorMessage = '올바른 JPEG 형식이 아닙니다';
       }
 
+      if (error.message === 'Invalid PNG buffer') {
+        errorMessage = '올바른 PNG 형식이 아닙니다';
+      }
 
-      res.json({
-        error: true,
-        message: errorMessage
-      });
+      if (error.message === 'Data is not in GIF format') {
+        errorMessage = '올바른 PNG 형식이 아닙니다';
+      }
+
+      if (obj.files && obj.files[0]) {
+        uploader.localDelete(obj.files[0], function (err) {
+          res.json({
+            error: true,
+            message: errorMessage,
+            localError: err
+          });
+        });
+      } else {
+        res.json({
+          error: true,
+          message: errorMessage
+        });
+      }
     }
   });
 
