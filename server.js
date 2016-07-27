@@ -10,14 +10,14 @@ var options = {
   uploadDir: __dirname + '/public/uploaded/files',
   uploadUrl:  '/uploaded/files/',
   proxy: '/image',
-  maxPostSize: 11000000000, // 11 GB
+  maxPostSize: 100 * 1024 * 1024,// 100 MB
   minFileSize:  1,
-  maxFileSize:  10000000000, // 10 GB
-  acceptFileTypes:  /.+/i,
+  maxFileSize:  10 * 1024 * 1024, // 10 MB
+  acceptFileTypes:  /\.(gif|jpe?g|png|bmp)/i,
   // Files not matched by this regular expression force a download dialog,
   // to prevent executing any scripts in the context of the service domain:
-  inlineFileTypes:  /\.(gif|jpe?g|png)/i,
-  imageTypes:  /\.(gif|jpe?g|png)/i,
+  inlineFileTypes:  /\.(gif|jpe?g|png|bmp)/i,
+  imageTypes:  /\.(gif|jpe?g|png|bmp)/i,
   copyImgAsThumb : true, // required
   imageVersions: {
     maxWidth: 200,
@@ -69,7 +69,7 @@ app.post('/upload', function (req, res) {
     }
 
     if (error) {
-      let errorMessage;
+      let errorMessage = '알 수 없는 오류 입니다';
       if (error.message === 'JPEG decoding error') {
         errorMessage = '올바른 JPEG 형식이 아닙니다';
       }
@@ -79,7 +79,7 @@ app.post('/upload', function (req, res) {
       }
 
       if (error.message === 'Data is not in GIF format') {
-        errorMessage = '올바른 PNG 형식이 아닙니다';
+        errorMessage = '올바른 GIF 형식이 아닙니다';
       }
 
       if (obj.files && obj.files[0]) {
