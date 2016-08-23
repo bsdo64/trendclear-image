@@ -90,29 +90,43 @@ module.exports = function(opts) {
                     retVal.fileInfo.height = image.height() || retVal.fileInfo.width;
                 }
 
+                console.log(image);
+
                 var opts0 = options.imageVersions[versionObj.version];
                 if (opts0.height == 'auto') {
 
                     retVal.width = opts0.width;
                     retVal.height = (opts0.width / retVal.fileInfo.width) * retVal.fileInfo.height;
-                    image.batch().resize(opts0.width, retVal.height).writeFile(options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name, function(err) {
-                        if (err) {
-                            cbk(err, retVal);
-                            return;
-                        }
-                        cbk(null, retVal);
-                    });
+                    image
+                        .batch()
+                        .resize(opts0.width, retVal.height)
+                        .writeFile(
+                            options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name,
+                            {},
+                            function(err) {
+                                if (err) {
+                                    cbk(err, retVal);
+                                    return;
+                                }
+                                cbk(null, retVal);
+                            });
                     return;
                 }
                 retVal.width = opts0.width;
                 retVal.height = opts0.height;
-                image.batch().resize(opts0.width, opts0.height).writeFile(options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name, function(err) {
-                    if (err) {
-                        return cbk(err, retVal);
-                    }
-                    cbk(null, retVal);
-                });
-
+                image
+                    .batch()
+                    .resize(opts0.width, opts0.height)
+                    .writeFile(
+                        options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name,
+                        {},
+                        function(err) {
+                            if (err) {
+                                cbk(err, retVal);
+                                return;
+                            }
+                            cbk(null, retVal);
+                        });
             });
         },
         post: function(fileInfo, file, finish) {

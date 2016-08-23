@@ -22,6 +22,18 @@ var options = {
   imageVersions: {
     maxWidth: 200,
     maxHeight: 'auto',
+    avatar1: {
+      width : 50,
+      height : 'auto'
+    },
+    avatar2: {
+      width : 35,
+      height : 'auto'
+    },
+    post: {
+      width : 600,
+      height : 'auto'
+    },
     "large" : {
       width : 600,
       height : 'auto'
