@@ -1,7 +1,6 @@
 var gulp            = require('gulp'),
     jshint          = require('gulp-jshint'),
-    jshintStylish   = require('jshint-stylish'),
-    pkg             = require('./package.json');
+    jshintStylish   = require('jshint-stylish');
 
 gulp.task('lint',function(){
 

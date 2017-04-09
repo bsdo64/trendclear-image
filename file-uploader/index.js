@@ -1,21 +1,21 @@
 /*jslint node: true */
 'use strict';
 
-var FileInfo = require('./lib/fileinfo.js');
-var configs = require('./lib/configs.js');
-var formidable = require('formidable');
-var fs = require('fs');
-var path = require('path');
+const FileInfo = require('./lib/fileinfo.js');
+const configs = require('./lib/configs.js');
+const formidable = require('formidable');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = uploadService;
 
 function uploadService(opts) {
-    var options = configs.apply(opts);
-    var transporter = options.storage.type === 'local' ? require('./lib/transport/local.js') : require('./lib/transport/aws.js');
+    const options = configs.apply(opts);
+    let transporter = options.storage.type === 'local' ? require('./lib/transport/local.js') : require('./lib/transport/aws.js');
 
     transporter = transporter(options);
 
-    var fileUploader = {};
+    const fileUploader = {};
 
     fileUploader.config = options;
 
@@ -33,16 +33,16 @@ function uploadService(opts) {
 
     fileUploader.post = function(req, res, callback) {
         setNoCacheHeaders(res);
-        var form = new formidable.IncomingForm();
-        var tmpFiles = [];
-        var files = [];
-        var map = {};
-        var fields = {};
-        var redirect;
+        const form = new formidable.IncomingForm();
+        const tmpFiles = [];
+        const files = [];
+        const map = {};
+        const fields = {};
+        let redirect;
 
         this.config.host = req.headers.host;
 
-        var configs = this.config;
+        const configs = this.config;
 
         req.body = req.body || {};
 
@@ -56,7 +56,7 @@ function uploadService(opts) {
                 files: files
             }, redirect);
 
-            var allFilesProccessed = true;
+            let allFilesProccessed = true;
 
             files.forEach(function(file, idx) {
                 allFilesProccessed = allFilesProccessed && file.proccessed;
@@ -75,7 +75,7 @@ function uploadService(opts) {
             tmpFiles.push(file.path);
             // fix #41
             configs.saveFile = true;
-            var fileInfo = new FileInfo(file, configs, fields);
+            const fileInfo = new FileInfo(file, configs, fields);
             map[fileInfo.key] = fileInfo;
             files.push(fileInfo);
         }).on('field', function(name, value) {
@@ -84,7 +84,7 @@ function uploadService(opts) {
                 redirect = value;
             }
         }).on('file', function(name, file) {
-            var fileInfo = map[FileInfo.getFileKey(file.path)];
+            const fileInfo = map[FileInfo.getFileKey(file.path)];
             fileInfo.update(file);
             if (!fileInfo.validate()) {
                 finish(fileInfo.error);

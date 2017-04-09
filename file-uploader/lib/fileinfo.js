@@ -1,18 +1,18 @@
 /*jslint node: true */
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
 
 // Since Node 0.8, .existsSync() moved from path to fs: 
-var _existsSync = fs.existsSync || path.existsSync;
+const _existsSync = fs.existsSync || path.existsSync;
 
-var getFileKey = function(filePath) {
+const getFileKey = function(filePath) {
 
     return path.basename(filePath);
 
 };
-var udf;
+let udf;
 
 function FileInfo(file, opts, fields) {
     this.name = file.name;
@@ -35,7 +35,7 @@ FileInfo.prototype.update = function(file) {
     this.size = file.size;
 };
 FileInfo.prototype.safeName = function() {
-    var nameCountRegexp = /(?:(?: \(([\d]+)\))?(\.[^.]+))?$/;
+    const nameCountRegexp = /(?:(?: \(([\d]+)\))?(\.[^.]+))?$/;
 
     function nameCountFunc(s, index, ext) {
         return ' (' + ((parseInt(index, 10) || 0) + 1) + ')' + (ext || '');
@@ -51,8 +51,8 @@ FileInfo.prototype.safeName = function() {
 
 FileInfo.prototype.initUrls = function() {
 
-    var that = this;
-    var baseUrl = (that.options.useSSL ? 'https:' : 'http:') +
+    const that = this;
+    const baseUrl = (that.options.useSSL ? 'https:' : 'http:') +
                     '//' + that.options.host +
                     (that.options.proxy ? that.options.proxy : '') +
                     that.options.uploadUrl;

@@ -1,29 +1,29 @@
 /*jslint node: true */
-var fs = require('fs');
-var formidable = require('formidable');
-var FileInfo = require('../fileinfo.js');
-var lwip = require('lwip');
-// var gm = require('gm');
-var path = require('path');
-var async = require('async');
+const fs = require('fs');
+const formidable = require('formidable');
+const FileInfo = require('../fileinfo.js');
+const lwip = require('lwip');
+// const gm = require('gm');
+const path = require('path');
+const async = require('async');
 
 module.exports = function(opts) {
 
-    var api = {
+    const api = {
         options: opts,
         /**
          * get files
          */
         get: function(callback) {
-            var files = [],
+            const files = [],
                 options = this.options;
             // fix #41
             options.saveFile = false;
             fs.readdir(options.uploadDir, function(err, list) {
                 list.forEach(function(name) {
-                    var stats = fs.statSync(options.uploadDir + '/' + name);
+                    const stats = fs.statSync(options.uploadDir + '/' + name);
                     if (stats.isFile() && name[0] !== '.') {
-                        var fileInfo = new FileInfo({
+                        const fileInfo = new FileInfo({
                             name: name,
                             size: stats.size,
                             lastMod: stats.mtime
@@ -39,8 +39,8 @@ module.exports = function(opts) {
         },
         proccessVersionFile: function(versionObj, cbk) {
 
-            var options = api.options;
-            var retVal = versionObj;
+            const options = api.options;
+            const retVal = versionObj;
 
             // gm(options.uploadDir + '/' + versionObj.fileInfo.name)
             //   .size(function (error, size) {
@@ -52,7 +52,7 @@ module.exports = function(opts) {
             //           retVal.fileInfo.height = size.height || retVal.fileInfo.width;
             //       }
             //
-            //       var opts0 = options.imageVersions[versionObj.version];
+            //       const opts0 = options.imageVersions[versionObj.version];
             //       if (opts0.height == 'auto') {
             //           retVal.width = opts0.width;
             //           retVal.height = (opts0.width / retVal.fileInfo.width) * retVal.fileInfo.height;
@@ -92,7 +92,7 @@ module.exports = function(opts) {
 
                 console.log(image);
 
-                var opts0 = options.imageVersions[versionObj.version];
+                const opts0 = options.imageVersions[versionObj.version];
                 if (opts0.height == 'auto') {
 
                     retVal.width = opts0.width;
@@ -131,7 +131,7 @@ module.exports = function(opts) {
         },
         post: function(fileInfo, file, finish) {
 
-            var me = this,
+            const me = this,
                 options = this.options,
                 versionFuncs = [];
 
@@ -173,8 +173,8 @@ module.exports = function(opts) {
 
         },
         delete: function(req, res, callback) {
-            var options = this.options;
-            var fileName = '';
+            const options = this.options;
+            let fileName = '';
 
             if (req.url.slice(0, options.uploadUrl.length) === options.uploadUrl) {
                 fileName = path.basename(decodeURIComponent(req.body.file));
@@ -200,8 +200,8 @@ module.exports = function(opts) {
             callback(new Error('File name invalid:' + fileName), null);
         },
         localDelete: function (fileObj, callback) {
-            var options = this.options;
-            var fileName = fileObj.name;
+            const options = this.options;
+            const fileName = fileObj.name;
 
             if (fileName !== '.') {
                 fs.access(options.uploadDir + '/' + fileName, fs.F_OK, function (err) {
