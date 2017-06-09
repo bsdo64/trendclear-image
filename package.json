@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:start": "nodemon server.js"
+    "test": "mocha",
+    "dev:start": "nodemon bin/www.js"
   },
   "author": "Byeongsu Do <bsdo@naver.com>",
   "license": "ISC",
@@ -26,10 +26,13 @@
     "shortid": "latest"
   },
   "devDependencies": {
+    "chai": "^4.0.2",
     "gulp": "^3.8.11",
     "gulp-jshint": "^1.9.4",
     "jasmine-node": "1.14.2",
-    "jshint-stylish": "^1.0.1"
+    "jshint-stylish": "^1.0.1",
+    "mocha": "^3.4.2",
+    "superagent": "^3.5.2"
   },
   "repository": "git@github.com:bsdo64/trendclear-image.git"
 }

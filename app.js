@@ -71,7 +71,6 @@ app.get('/uploaded', function (req, res) {
       res.json(obj);
     }
   });
-
 });
 
 app.post('/upload', function (req, res) {
@@ -120,4 +119,4 @@ app.delete('/uploaded/files', function (req, res) {
   });
 });
 
-app.listen(3002);
+module.exports = app;
