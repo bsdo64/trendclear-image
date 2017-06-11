@@ -2,7 +2,8 @@
 const fs = require('fs');
 const formidable = require('formidable');
 const FileInfo = require('../fileinfo.js');
-const lwip = require('lwip');
+//const lwip = require('lwip');
+const sharp = require('sharp');
 // const gm = require('gm');
 const path = require('path');
 const async = require('async');
@@ -80,6 +81,7 @@ module.exports = function(opts) {
             //       });
             //   });
             
+/*
             lwip.open(options.uploadDir + '/' + versionObj.fileInfo.name, function(error, image) {
 
                 if (error) return cbk(error, versionObj.version);
@@ -128,6 +130,51 @@ module.exports = function(opts) {
                             cbk(null, retVal);
                         });
             });
+*/
+
+          const image = sharp(options.uploadDir + '/' + versionObj.fileInfo.name);
+          image
+              .metadata()
+              .then(metadata => {
+                if (!retVal.fileInfo.width) {
+                  retVal.fileInfo.width = metadata.width || 50; //incase we don't get a valid width
+                  retVal.fileInfo.height = metadata.height || retVal.fileInfo.width;
+                }
+
+                const opts0 = options.imageVersions[versionObj.version];
+                if (opts0.height === 'auto') {
+
+                  retVal.width = opts0.width;
+                  retVal.height = parseInt((opts0.width / retVal.fileInfo.width) * retVal.fileInfo.height);
+                  image
+                      .resize(opts0.width, retVal.height)
+                      .toFile(options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name, function(err, info) {
+                        if (err) {
+                          cbk(err, retVal);
+                          return;
+                        }
+                        cbk(null, retVal);
+                      });
+
+                  return;
+                }
+
+                retVal.width = opts0.width;
+                retVal.height = opts0.height;
+
+                image
+                    .resize(opts0.width, opts0.height)
+                    .toFile(options.uploadDir + '/' + versionObj.version + '/' + versionObj.fileInfo.name, function(err, info) {
+                      if (err) {
+                        cbk(err, retVal);
+                        return;
+                      }
+                      cbk(null, retVal);
+                    });
+              })
+              .catch(err => {
+                return cbk(err, versionObj.version);
+              })
         },
         post: function(fileInfo, file, finish) {
 

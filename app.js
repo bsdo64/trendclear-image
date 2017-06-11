@@ -98,7 +98,8 @@ app.post('/upload', function (req, res) {
           res.json({
             error: true,
             message: errorMessage,
-            localError: err
+            localError: err,
+            uploaderError: error
           });
         });
       } else {

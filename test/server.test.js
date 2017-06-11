@@ -1,6 +1,7 @@
 const request = require('superagent');
 const expect = require('chai').expect;
 const fs = require('fs');
+const { URL } = require('url');
 
 describe('Image Server > ', function() {
   let app = require('../app.js');
@@ -10,6 +11,7 @@ describe('Image Server > ', function() {
   };
   let server;
   let url = options.host + ':' + options.port;
+  let testFile;
 
   before(function() {
     server = app.listen(options.port);
@@ -42,30 +44,32 @@ describe('Image Server > ', function() {
         expect(result.body).have.property('files');
         expect(result.body.files).to.be.an.instanceof(Array);
 
+        testFile = result.body.files[0];
         done();
       })
   });
 
   it('should server get image', function (done) {
     request
-      .get(url + '/')
+      .get(url + '/uploaded/files/test.jpg')
       .end((err, result) => {
-        expect(err).to.be.a('error');
-        expect(err).not.to.be.a('null');
-        expect(result).to.be.a('object');
+        expect(result.type).to.equal('image/jpeg');
 
         done();
       })
   });
 
-
   it('should server delete image', function (done) {
+
     request
-      .get(url + '/')
+      .delete(url + '/uploaded/files/')
+      .type('form')
+      .send({file: testFile.deleteUrl})
       .end((err, result) => {
-        expect(err).to.be.a('error');
-        expect(err).not.to.be.a('null');
+        expect(err).to.be.null;
+
         expect(result).to.be.a('object');
+        expect(result.body.obj.success).to.be.true;
 
         done();
       })
