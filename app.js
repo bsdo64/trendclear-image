@@ -1,11 +1,11 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var compression = require('compression');
-var logger = require('morgan');
-var app = express();
+const express = require('express');
+const bodyParser = require('body-parser');
+const compression = require('compression');
+const logger = require('morgan');
+const app = express();
 
 // config the uploader
-var options = {
+const options = {
   tmpDir:  __dirname + '/public/uploaded/tmp',
   uploadDir: __dirname + '/public/uploaded/files',
   uploadUrl:  '/uploaded/files/',
@@ -58,12 +58,69 @@ var options = {
 };
 
 // init the uploader
-var uploader = require('./file-uploader')(options);
+const uploader = require('./file-uploader')(options);
 
 app.use(compression());
-app.use(logger('common'));
+if (process.env.DEV === 'WHATCHING') {
+
+} else {
+  app.use(logger('common'));
+}
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public', {maxAge: '1d'}));
+
+const Iod = require('./iod/index.js');
+
+app.get('/iod/:hash', function (req, res) {
+
+  /**
+   * 1. Get image from server
+   * 2. Processing image
+   * 3. send image
+   */
+  Iod
+    .getLocal(req)
+    .then(image => {
+
+      res.type(image.info.format);
+      res.send(image.data);
+    })
+    .catch(err => {
+      res.send(err);
+    });
+});
+
+app.post('/iod/upload', function (req, res) {
+  Iod
+    .postLocal(req)
+    .then(result => {
+
+      res.json(result);
+    })
+    .catch(err => {
+      res.json(err);
+    })
+});
+
+app.delete('/iod/upload', function (req, res) {
+  Iod
+    .deleteLocalFile(req)
+    .then(result => {
+      res.json(result);
+    })
+    .catch(err => {
+      res.json(err);
+    })
+});
+
+app.get('/iod/remote/:hash', function (req, res) {
+
+  Iod.getRemote(req, res, function (err, obj) {
+    if (!err) {
+      res.json(obj);
+    }
+  });
+});
 
 app.get('/uploaded', function (req, res) {
   uploader.get(req, res, function (err, obj) {

@@ -2,9 +2,7 @@
 const fs = require('fs');
 const formidable = require('formidable');
 const FileInfo = require('../fileinfo.js');
-//const lwip = require('lwip');
 const sharp = require('sharp');
-// const gm = require('gm');
 const path = require('path');
 const async = require('async');
 
@@ -80,7 +78,7 @@ module.exports = function(opts) {
             //           cbk(null, retVal);
             //       });
             //   });
-            
+
 /*
             lwip.open(options.uploadDir + '/' + versionObj.fileInfo.name, function(error, image) {
 

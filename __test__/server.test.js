@@ -3,7 +3,7 @@ const expect = require('chai').expect;
 const fs = require('fs');
 const { URL } = require('url');
 
-describe('Image Server > ', function() {
+describe('Image Server (deprecated) ', function() {
   let app = require('../app.js');
   let options = {
     port: 8080,
@@ -17,8 +17,8 @@ describe('Image Server > ', function() {
     server = app.listen(options.port);
   });
 
-  beforeEach(function () {
-    server = require('../app.js');
+  after(function () {
+    server.close();
   });
 
   it('should server running at port', function (done) {
