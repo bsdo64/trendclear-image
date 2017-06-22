@@ -3,13 +3,14 @@
  */
 const conf = require('./config');
 const Utils = require('./lib/utils');
-const Thunks = require('./lib/thunks/index.js');
+const Control = require('./lib/control/index.js');
+const FileInfo = require('./lib/fileInfo');
 
 class Iod {
   constructor(config) {
     this.config = conf || config;
     this.utils = new Utils(this.config);
-    this.thunks = Thunks;
+    this.Control = Control(this.config);
   }
 
   // Sending processing(ed) image
@@ -24,8 +25,9 @@ class Iod {
       const getFilePath = this.utils.getPathWithFileName(fileName);
 
       await this.utils.hashMatches(hash, fileName);
-      const checkFile = await this.utils.checkExistFile(getFilePath);
-      const imgProcessing = await this.thunks.imageProcessing(checkFile);
+      await this.utils.checkExistFile(getFilePath);
+
+      const imgProcessing = await this.Control.processor('Image').sharp(getFilePath);
 
       return imgProcessing;
     } catch (e) {
@@ -35,26 +37,10 @@ class Iod {
 
   // Sending processing(ed) image
   async getLocalImageInfo(req) {
-    if (!req || !(req && req.query) || !(req && req.query && req.query.fn)) {
-      return Promise.reject(new Error('No Req'));
-    }
 
-    try {
-      const hash = req.params.hash;
-      const fileName = req.query.fn;
-      const getFilePath = this.utils.getPathWithFileName(fileName);
-
-      const hashCheck = await this.utils.hashMatches(hash, fileName);
-      const checkFile = await this.utils.checkExistFile(getFilePath);
-      const imgProcessing = await this.thunks.imageProcessing(checkFile);
-
-      return imgProcessing;
-    } catch (e) {
-      throw e;
-    }
   }
 
-  getRemote() {
+  async getRemote() {
 
   }
 
@@ -65,9 +51,13 @@ class Iod {
 
     try {
       const getFilePath = this.utils.getPathWithFileName(req.body.fn);
+      await this.utils.checkExistFile(getFilePath);
+      const fileInfo = new FileInfo(getFilePath);
+      const newFile = await fileInfo.deleteFile();
 
-      const checkFile = await this.utils.checkExistFile(getFilePath);
-      return this.thunks.deleteFile(checkFile)
+      return {
+        deleted: newFile
+      };
     } catch (e) {
       throw e;
     }
@@ -83,11 +73,18 @@ class Iod {
         this.utils.checkExistDir(this.config.formidable.uploadDir)
       ]);
 
-      const formidableResults = await this.thunks.formidablePromise(req, this.config.formidable);
-      const renameFiles = await this.thunks.renameFiles(formidableResults, this.utils, this.config.formidable);
-      const summary = await this.thunks.summaryResults(renameFiles);
+      const fileProcessor = this.Control.processor('File');
+      const requestProcessor = this.Control.processor('Request');
 
-      return summary
+      const formidableResults = await requestProcessor.parseForm(req);
+      const fileInfos = fileProcessor.makeFileInfos(formidableResults.files);
+      const newFileInfos = await fileProcessor.renameFilesTmpToPublic(fileInfos);
+
+      const results = {};
+      results.files = newFileInfos.map(fileInfo => fileInfo.toJSON());
+
+      return results;
+
     } catch (e) {
       throw e;
     }

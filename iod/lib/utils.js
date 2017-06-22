@@ -33,44 +33,6 @@ class Utils {
     return path.parse(filePath)
   }
 
-  makeFileName(parsedFilePath) {
-    return shortId.generate() + parsedFilePath.ext;
-  }
-
-  makeSaveFilePath(newFileName, options) {
-    return options.uploadDir + '/' + newFileName;
-  }
-
-  renameFile(file, options) {
-    return new Promise((resolve, reject) => {
-      const newFileName = this.makeFileName(this.parseFileName(file.name));
-      const newFilePath = this.makeSaveFilePath(newFileName, options);
-      fs.rename(file.path, newFilePath, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve(newFilePath)
-      });
-    })
-  }
-
-  getImageFileMeta(fileName) {
-
-  }
-
-  deleteFile(path) {
-    return new Promise((resolve, reject) => {
-      fs.unlink(path, err => {
-        if (err) {
-          reject(err)
-        }
-
-        resolve();
-      })
-    })
-  }
-
   checkExistDir(dir) {
     return new Promise((resolve, reject) => {
       fs.stat(dir, function(error, stat) {

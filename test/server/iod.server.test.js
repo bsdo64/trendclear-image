@@ -53,25 +53,26 @@ describe('IOD Image Server', function() {
   it('should server post image', function () {
     return request
       .post(url + '/iod/upload')
-      .attach('image_file', __dirname + '/test.jpg')
+      .type('png')
+      .attach('image_file', __dirname + '/test.jpg', 'test.jpg')
       .field('user[name]', 'Tobi')
       .field('user[name]', 'Tobi1')
       .field('user[name]', 'Tobi2')
       .then((result) => {
 
         expect(result.body).to.be.an('object').that.has.all.keys('files');
-        //expect(result.body).to.nested.include({'files.name': 'test.jpg'});
+        expect(result.body).to.nested.include({'files[0].original_name': 'test.jpg'});
 
         testFiles = result.body.files;
       })
   });
 
   it('should server get image', function () {
-    const hash = Iod.utils.hash(testFiles[0]);
+    const hash = Iod.utils.hash(testFiles[0].name);
 
     return request
       .get(url + `/iod/${hash}`)
-      .query({fn: testFiles[0]})
+      .query({fn: testFiles[0].name})
       .then((result) => {
 
         expect(result.body).to.be.an.instanceOf(Buffer);
@@ -81,7 +82,7 @@ describe('IOD Image Server', function() {
   it('should server throw error with invalid hash', function () {
     return request
       .get(url + `/iod/__hash__`)
-      .query({fn: testFiles[0]})
+      .query({fn: testFiles[0].name})
       .catch((error) => {
         expect(error).to.be.an.instanceOf(Error);
         expect(error.message).to.be.equal("Not Found");
@@ -92,11 +93,11 @@ describe('IOD Image Server', function() {
     return request
       .delete(url + '/iod/upload')
       .type('form')
-      .send({ fn: testFiles[0] })
+      .send({ fn: testFiles[0].name })
       .then((result) => {
 
         expect(result.body).to.be.a('object');
-        expect(result.body.deleted).to.be.a('string');
+        expect(result.body.deleted).to.be.a('object').to.have.all.keys(['name', 'original_name']);
 
       })
   });

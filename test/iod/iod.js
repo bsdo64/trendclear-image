@@ -1,13 +1,14 @@
-const request = require('superagent');
 const expect = require('chai').expect;
 const fs = require('fs');
 const express = require('express');
 const app = express();
 const sinon = require('sinon');
-const formData = require('form-data');
+let Iod = require('../../iod/index.js');
 
 describe('Class Iod', () => {
   let server;
+  let sandbox,
+    stubProcessor, stubCheckExistFile, stubImgSharp, stubParseForm, stubCheckExistDir;
 
   before(function (){
     server = app.listen(8080, () => {});
@@ -17,14 +18,32 @@ describe('Class Iod', () => {
     server.close();
   });
 
-  describe('Constructor', () => {
-    let Iod = require('../../iod/index.js');
+  beforeEach(()=> {
+    sandbox = sinon.sandbox.create();
 
+    stubCheckExistDir = sandbox.stub(Iod.utils, 'checkExistDir');
+    stubCheckExistFile = sandbox.stub(Iod.utils, 'checkExistFile');
+    stubParseForm = sandbox.stub();
+    stubImgSharp = sandbox.stub();
+    stubProcessor = sandbox.stub(Iod.Control, 'processor');
+    stubProcessor.withArgs('Image').returns({
+      sharp: stubImgSharp,
+    });
+    stubProcessor.withArgs('Request').returns({
+      parseForm: stubParseForm,
+    });
+  });
+
+  afterEach(()=> {
+    sandbox.restore();
+  });
+
+  describe('Constructor', () => {
     it('should have properties', () => {
 
       expect(Iod).to.have.property('config');
       expect(Iod).to.have.property('utils');
-      expect(Iod).to.have.property('thunks');
+      expect(Iod).to.have.property('Control');
 
     });
 
@@ -38,25 +57,10 @@ describe('Class Iod', () => {
   });
 
   describe('# postLocal', () => {
-    let Iod = require('../../iod/index');
-    let sandbox,
-      stubRenameFiles, stubFormidable, stubCheckExistDir, stubSummary;
-
-    beforeEach(()=> {
-      sandbox = sinon.sandbox.create();
-
-      stubCheckExistDir = sandbox.stub(Iod.utils, 'checkExistDir');
-      stubFormidable = sandbox.stub(Iod.thunks, 'formidablePromise');
-      stubRenameFiles = sandbox.stub(Iod.thunks, 'renameFiles');
-      stubSummary = sandbox.stub(Iod.thunks, 'summaryResults');
-    });
-
-    afterEach(()=> {
-      sandbox.restore();
-    });
-
     it('should instance of Promise', () => {
-      expect(Iod.postLocal()).to.be.an.instanceOf(Promise);
+      const postLocal = Iod.postLocal();
+      expect(postLocal).to.be.an.instanceOf(Promise);
+      postLocal.catch(e => expect(e).to.be.an.instanceOf(Error));
     });
 
     it('should check exist of file directory', () => {
@@ -68,69 +72,47 @@ describe('Class Iod', () => {
 
     it('should throw error with no args', async() => {
 
-      const expectedError = new Error('No Req - fake');
-      stubFormidable.returns(Promise.reject(expectedError));
-
       try {
+        stubParseForm.rejects(new Error('No Request params'));
+
         await Iod.postLocal();
       } catch (e) {
-        expect(stubFormidable.called).to.be.equal(true);
-        expect(e).to.be.equal(expectedError);
-        sinon.assert.calledWith(stubFormidable, undefined);
-      }
-    });
 
-    it('should return information about uploaded files', async() => {
-
-      const expected = { files: [ /* {original_filename, public_id, width, height, format, created_at, size, url ..} */] };
-      const fakeReq = {};
-      const fakeFiles = [];
-      stubFormidable.resolves(fakeFiles);
-      stubRenameFiles.resolves(fakeFiles);
-      stubSummary.resolves(expected);
-
-      try {
-        const result = await Iod.postLocal(fakeReq);
-
-        sinon.assert.calledTwice(stubCheckExistDir);
-
-        sinon.assert.calledOnce(stubFormidable);
-        sinon.assert.calledWith(stubFormidable, fakeReq, Iod.config.formidable);
-
-        sinon.assert.calledOnce(stubRenameFiles);
-        sinon.assert.calledWith(stubRenameFiles, fakeFiles, Iod.utils, Iod.config.formidable);
-
-        sinon.assert.calledOnce(stubSummary);
-        sinon.assert.calledWith(stubSummary, fakeFiles);
-
-        expect(result).to.be.equal(expected);
-      } catch (err) {
-        expect(err).to.be.equal(null);
+        expect(e).to.be.an.instanceOf(Error);
+        expect(e.message).to.be.equal('No Request params');
       }
     });
   });
 
   describe('# getLocalImage', () => {
     let req = { query: { fn: 'test.jpg' }, params: { hash: '1ed0886e' } };
-    let Iod = require('../../iod/index.js');
-    let sandbox,
-      stubImgProcessing, stubCheckExistFile;
-
-    beforeEach(()=> {
-      sandbox = sinon.sandbox.create();
-
-      stubCheckExistFile = sandbox.stub(Iod.utils, 'checkExistFile');
-      stubImgProcessing = sandbox.stub(Iod.thunks, 'imageProcessing');
-    });
-
-    afterEach(()=> {
-      sandbox.restore();
-    });
+    const sample = {
+      "public_id": "eneivicys42bq5f2jpn2",
+      "version": 1473596672,
+      "signature": "abcdefghijklmnopqrstuvwxyz12345",
+      "width": 1000,
+      "height": 672,
+      "access_mode": "public",
+      "format": "jpg",
+      "resource_type": "image",
+      "created_at": "2016-09-11T12:24:32Z",
+      "bytes": 350749,
+      "type": "upload",
+      "etag": "5297bd123ad4ddad723483c176e35f6e",
+      "url": "http://res.cloudinary.com/demo/image/upload/v1473596672/eneivicys42bq5f2jpn2.jpg",
+      "secure_url": "https://res.cloudinary.com/demo/image/upload/v1473596672/eneivicys42bq5f2jpn2.jpg",
+      "original_filename": "sample"
+    };
 
     it('should instance of Promise', function () {
       stubCheckExistFile.returns(Promise.resolve(true));
 
-      expect(Iod.getLocalImage(req)).to.be.an.instanceOf(Promise);
+      const getLocal = Iod.getLocalImage(req);
+      return getLocal
+        .catch(e => {
+          expect(e).to.be.an.instanceOf(Error);
+          expect(getLocal).to.be.an.instanceOf(Promise);
+        })
     });
 
     it('should throw error without req', function () {
@@ -155,37 +137,35 @@ describe('Class Iod', () => {
 
     it('should return result of buffer image', function () {
 
+      const buff = new Buffer('test');
       stubCheckExistFile.returns(Promise.resolve(1));
-      stubImgProcessing.returns(Promise.resolve(new Buffer('test')));
+      stubImgSharp.resolves(buff);
 
       return Iod.getLocalImage(req)
         .then(result => {
           expect(result).to.be.an.instanceOf(Buffer);
+          expect(result).to.be.equal(buff);
+        })
+        .catch(e => {
+          console.log(e);
+          expect(e).to.be.a(null);
         })
     })
   });
 
   describe('# deleteLocal', () => {
     let req = { body: { fn: 'test.jpg' } };
-    let Iod = require('../../iod/index.js');
-    let sandbox,
-      stubDeleteFile, stubCheckExistFile;
-
-    beforeEach(()=> {
-      sandbox = sinon.sandbox.create();
-
-      stubCheckExistFile = sandbox.stub(Iod.utils, 'checkExistFile');
-      stubDeleteFile = sandbox.stub(Iod.thunks, 'deleteFile');
-    });
-
-    afterEach(()=> {
-      sandbox.restore();
-    });
 
     it('should instance of Promise', function () {
       stubCheckExistFile.returns(Promise.resolve(true));
 
-      expect(Iod.deleteLocalFile(req)).to.be.an.instanceOf(Promise);
+      const deleteLocal = Iod.deleteLocalFile(req);
+
+      return deleteLocal
+        .catch(e => {
+          expect(e).to.be.an.instanceOf(Error);
+          expect(deleteLocal).to.be.an.instanceOf(Promise);
+        })
     });
 
     it('should throw error without req', function () {
@@ -196,22 +176,6 @@ describe('Class Iod', () => {
         .catch(result => {
           expect(result).to.be.an.instanceOf(Error);
           expect(result.message).to.be.equal(expectedError.message);
-        })
-    });
-
-    it('should return delete message after delete', function () {
-
-      const data = {
-        deleted: 'test.jpg'
-      };
-
-      stubCheckExistFile.returns(Promise.resolve(true));
-      stubDeleteFile.returns(Promise.resolve(data));
-
-      return Iod.deleteLocalFile(req)
-        .then(result => {
-          expect(result).to.be.an.equal(data);
-          expect(result).to.have.property('deleted');
         })
     });
   });

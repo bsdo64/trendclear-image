@@ -1,16 +1,16 @@
 const fileInfo = require('../../iod/lib/fileInfo');
 const expect = require('chai').expect;
 const sinon = require('sinon');
-const path = require('path');
+const {resolve} = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 
 describe('FileInfo', () => {
-  const filePath = path.resolve(__dirname, './test.jpg');
+  const path = resolve(__dirname, './test.jpg');
 
   describe('Constructor', () => {
     it('should construct with file path', () => {
-      const file = new fileInfo(filePath);
+      const file = new fileInfo(path);
 
       expect(file).to.be.an.instanceOf(fileInfo);
     });
@@ -20,9 +20,9 @@ describe('FileInfo', () => {
     it('should set properties with metadata', async() => {
 
       const result = {
-        'filePath': '', 'height': '', 'format': '', 'width': '', 'space': '', 'depth': '', 'channels' : '',
+        "path": '', 'height': '', 'format': '', 'width': '', 'space': '', 'depth': '', 'channels' : '',
       };
-      const file = new fileInfo(filePath);
+      const file = new fileInfo(path);
       const stub = sinon.stub(file.sharp, 'metadata').resolves(result);
 
       try {
@@ -30,7 +30,7 @@ describe('FileInfo', () => {
 
         sinon.assert.calledOnce(stub);
         expect(fileMeta).to.include.all.keys(
-          'filePath', 'height', 'format', 'width', 'space', 'depth', 'channels'
+          'path', 'height', 'format', 'width', 'space', 'depth', 'channels'
         );
 
         stub.restore();
@@ -47,13 +47,13 @@ describe('FileInfo', () => {
 
       const stub = sinon.stub(fs, 'rename').yields(null);
 
-      const file = new fileInfo(filePath);
-      const renamePath = path.resolve(__dirname, 'test1.jpg');
+      const file = new fileInfo(path);
+      const renamePath = resolve(__dirname, 'test1.jpg');
 
       try {
         const newFile = await file.renameFile(renamePath);
-        expect(file.filePath).to.be.equal(renamePath);
-        expect(newFile.filePath).to.be.equal(renamePath);
+        expect(file.path).to.be.equal(renamePath);
+        expect(newFile.path).to.be.equal(renamePath);
 
         stub.restore();
 
@@ -68,8 +68,8 @@ describe('FileInfo', () => {
       const error = new Error();
       const stub = sinon.stub(fs, 'rename').yields(error);
 
-      const file = new fileInfo(filePath);
-      const renamePath = path.resolve(__dirname, 'test1.jpg');
+      const file = new fileInfo(path);
+      const renamePath = resolve(__dirname, 'test1.jpg');
 
       try {
         await file.renameFile(renamePath);
@@ -87,12 +87,11 @@ describe('FileInfo', () => {
 
       const stub = sinon.stub(fs, 'unlink').yields(null);
 
-      const file = new fileInfo(filePath);
+      const file = new fileInfo(path);
 
       try {
         const newFile = await file.deleteFile();
         expect(newFile.deleted).to.be.equal(true);
-        expect(newFile.filePath).to.be.equal(null);
 
         stub.restore();
 
@@ -107,8 +106,8 @@ describe('FileInfo', () => {
       const error = new Error();
       const stub = sinon.stub(fs, 'unlink').yields(error);
 
-      const file = new fileInfo(filePath);
-      const renamePath = path.resolve(__dirname, 'test1.jpg');
+      const file = new fileInfo(path);
+      const renamePath = resolve(__dirname, 'test1.jpg');
 
       try {
         await file.deleteFile(renamePath);
