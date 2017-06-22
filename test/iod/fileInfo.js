@@ -20,16 +20,20 @@ describe('FileInfo', () => {
     it('should set properties with metadata', async() => {
 
       const result = {
-        'filePath': '' 'height': '' 'format': '' 'width': '' 'space': '' 'depth': '' 'channels' : ''}
-      const stub = sinon.stub(sharp, 'metadata').resolve();
-
+        'filePath': '', 'height': '', 'format': '', 'width': '', 'space': '', 'depth': '', 'channels' : '',
+      };
       const file = new fileInfo(filePath);
+      const stub = sinon.stub(file.sharp, 'metadata').resolves(result);
 
       try {
         const fileMeta = await file.initMeta();
+
+        sinon.assert.calledOnce(stub);
         expect(fileMeta).to.include.all.keys(
           'filePath', 'height', 'format', 'width', 'space', 'depth', 'channels'
         );
+
+        stub.restore();
 
       } catch (e) {
         console.log(e);

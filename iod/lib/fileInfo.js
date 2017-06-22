@@ -8,18 +8,15 @@ const path = require('path');
 class FileInfo {
   constructor(filePath) {
     this.filePath = filePath;
+    this.sharp = sharp(filePath);
   }
 
   initMeta() {
-    return sharp(this.filePath)
+    return this.sharp
       .metadata()
       .then(metaData => {
 
-        Object.keys(metaData).map(key => {
-          if (metaData.hasOwnProperty(key)) {
-            this[key] = metaData[key];
-          }
-        });
+        Object.keys(metaData).map(key => this[key] = metaData[key]);
 
         return this;
       })

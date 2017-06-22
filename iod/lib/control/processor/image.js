@@ -6,6 +6,8 @@ class Image {
   constructor(options) {
     this.options = options;
   }
+
+
 }
 
 module.exports = Image;
