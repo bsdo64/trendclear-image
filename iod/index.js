@@ -3,73 +3,94 @@
  */
 const conf = require('./config');
 const Utils = require('./lib/utils');
-const sharp = require('sharp');
 const Thunks = require('./lib/thunks/index.js');
 
 class Iod {
   constructor(config) {
     this.config = conf || config;
     this.utils = new Utils(this.config);
-    this.sharp = sharp;
     this.thunks = Thunks;
   }
 
-  getLocal(req) {
-    const getFilePath = this.utils.getPathWithFileName(req.query.fn);
+  // Sending processing(ed) image
+  async getLocalImage(req) {
+    if (!req || !(req && req.query) || !(req && req.query && req.query.fn)) {
+      return Promise.reject(new Error('No Req'));
+    }
 
-    return this.utils
-      .checkExistFile(getFilePath)
-      .then(this.thunks.imageProcessing(this.sharp))
-      .catch(err => {
-        console.log(err);
+    try {
+      const hash = req.params.hash;
+      const fileName = req.query.fn;
+      const getFilePath = this.utils.getPathWithFileName(fileName);
 
-        throw err;
-      });
+      await this.utils.hashMatches(hash, fileName);
+      const checkFile = await this.utils.checkExistFile(getFilePath);
+      const imgProcessing = await this.thunks.imageProcessing(checkFile);
+
+      return imgProcessing;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // Sending processing(ed) image
+  async getLocalImageInfo(req) {
+    if (!req || !(req && req.query) || !(req && req.query && req.query.fn)) {
+      return Promise.reject(new Error('No Req'));
+    }
+
+    try {
+      const hash = req.params.hash;
+      const fileName = req.query.fn;
+      const getFilePath = this.utils.getPathWithFileName(fileName);
+
+      const hashCheck = await this.utils.hashMatches(hash, fileName);
+      const checkFile = await this.utils.checkExistFile(getFilePath);
+      const imgProcessing = await this.thunks.imageProcessing(checkFile);
+
+      return imgProcessing;
+    } catch (e) {
+      throw e;
+    }
   }
 
   getRemote() {
 
   }
 
-  deleteLocalFile(req) {
+  async deleteLocalFile(req) {
+    if (!req || !(req && req.body) || !(req && req.body && req.body.fn)) {
+      return Promise.reject(new Error('No Req'));
+    }
 
-    const getFilePath = this.utils.getPathWithFileName(req.body.fn);
+    try {
+      const getFilePath = this.utils.getPathWithFileName(req.body.fn);
 
-    return this.utils
-      .checkExistFile(getFilePath)
-      .then(this.thunks.deleteFile())
-      .catch(err => {
-        console.log(err);
-
-        throw err;
-      })
+      const checkFile = await this.utils.checkExistFile(getFilePath);
+      return this.thunks.deleteFile(checkFile)
+    } catch (e) {
+      throw e;
+    }
   }
 
-  postLocal(req) {
-    const checkDir = [
-      this.utils.checkExistDir(this.config.formidable.tmpDir),
-      this.utils.checkExistDir(this.config.formidable.uploadDir)
-    ];
+  // Save image and Sending image info
+  async postLocal(req) {
 
-    return Promise.all(checkDir)
-      .then(this.thunks.formidablePromise(req, this.config.formidable))
-      .then(formidableResults => {
+    try {
 
-        const files = formidableResults.files.map(file => {
-          return this.utils.renameFile(file, this.config.formidable)
-        });
+      await Promise.all([
+        this.utils.checkExistDir(this.config.formidable.tmpDir),
+        this.utils.checkExistDir(this.config.formidable.uploadDir)
+      ]);
 
-        return Promise.all(files)
-          .then(files => {
+      const formidableResults = await this.thunks.formidablePromise(req, this.config.formidable);
+      const renameFiles = await this.thunks.renameFiles(formidableResults, this.utils, this.config.formidable);
+      const summary = await this.thunks.summaryResults(renameFiles);
 
-            formidableResults.files = files;
-
-            return formidableResults;
-          });
-      })
-      .catch(err => {
-        throw err;
-      });
+      return summary
+    } catch (e) {
+      throw e;
+    }
   }
 }
 

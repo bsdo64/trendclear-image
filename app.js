@@ -74,23 +74,30 @@ const Iod = require('./iod/index.js');
 app.get('/iod/:hash', function (req, res) {
 
   /**
-   * 1. Get image from server
-   * 2. Processing image
-   * 3. send image
+   * 1. Hash check
+   * 2. Get image from server
+   * 3. Processing image
+   * 4. send image
    */
   Iod
-    .getLocal(req)
+    .getLocalImage(req)
     .then(image => {
 
       res.type(image.info.format);
       res.send(image.data);
     })
     .catch(err => {
-      res.send(err);
+
+      res.status(404).end();
     });
 });
 
 app.post('/iod/upload', function (req, res) {
+
+  if (!req.is('multipart')) {
+    return res.status(404).send();
+  }
+
   Iod
     .postLocal(req)
     .then(result => {
@@ -109,7 +116,7 @@ app.delete('/iod/upload', function (req, res) {
       res.json(result);
     })
     .catch(err => {
-      res.json(err);
+      res.status(404).json(err);
     })
 });
 
@@ -175,6 +182,11 @@ app.delete('/uploaded/files', function (req, res) {
   uploader.delete(req, res, function (err, obj) {
     res.json({error: err, obj: obj});
   });
+});
+
+app.use('*', function (req, res) {
+
+  res.status(404).end();
 });
 
 module.exports = app;

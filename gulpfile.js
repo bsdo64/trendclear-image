@@ -5,8 +5,11 @@ const  gulp = require('gulp'),
 gulp.task('mocha', function() {
   process.stdout.write('\033c');
 
-  gulp.src('**/__test__/**/*.test.js', {read: false})
-    .pipe(mocha())
+  gulp.src('test/**/*.js', {read: false})
+    .pipe(mocha({
+      inspect: true,
+      'trace-warnings': true
+    }))
 });
 
 gulp.task('default', ['mocha']);

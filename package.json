@@ -5,18 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "test:watch": "DEV=WHATCHING nodemon node_modules/.bin/gulp",
+    "test:watch": "DEV=WHATCHING nodemon --exec node --trace-warnings node_modules/.bin/gulp",
     "dev:start": "nodemon bin/www.js",
-    "test:jest": "jest --watch"
-  },
-  "jest": {
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ]
+    "test:cov": "DEV=WHATCHING nodemon --watch ./ node_modules/.bin/nyc mocha --recursive"
   },
   "author": "Byeongsu Do <bsdo@naver.com>",
   "license": "ISC",
@@ -45,8 +36,9 @@
     "jshint-stylish": "^1.0.1",
     "mocha": "^3.4.2",
     "nodemon": "^1.11.0",
-    "superagent": "^3.5.2",
-    "sinon": "^2.3.4"
+    "nyc": "^11.0.2",
+    "sinon": "^2.3.4",
+    "superagent": "^3.5.2"
   },
   "repository": "git@github.com:bsdo64/trendclear-image.git"
 }

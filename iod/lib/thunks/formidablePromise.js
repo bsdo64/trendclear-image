@@ -1,5 +1,6 @@
 const formidable = require('formidable');
 const fs = require('fs');
+const http = require('http');
 
 const parseForm = function (req, options, done) {
   const config = options;
@@ -55,26 +56,22 @@ const parseForm = function (req, options, done) {
 };
 
 const FormidablePromise = function (req, options) {
+  return new Promise((resolve, reject) => {
 
-  return function thunk() {
+    if (!req || !(req instanceof http.IncomingMessage) ) {
 
-    return new Promise((resolve, reject) => {
+      return reject(new Error('No Request params'))
+    }
 
-      if (!req || req instanceof require('http').ClientRequest ) {
+    parseForm(req, options, (err, data) => {
 
-        return reject(new Error('No Request'))
+      if (err) {
+        return reject(err);
       }
 
-      return parseForm(req, options, (err, data) => {
-
-        if (err) {
-          return reject(err);
-        }
-
-        return resolve(data)
-      });
-    })
-  }
+      return resolve(data)
+    });
+  })
 };
 
 module.exports = FormidablePromise;

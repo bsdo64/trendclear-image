@@ -4,7 +4,7 @@ const fs = require('fs');
 const { URL } = require('url');
 
 describe('Image Server (deprecated) ', function() {
-  let app = require('../app.js');
+  let app = require('../../app.js');
   let options = {
     port: 8080,
     host: 'http://localhost'
@@ -14,7 +14,7 @@ describe('Image Server (deprecated) ', function() {
   let testFile;
 
   before(function() {
-    server = app.listen(options.port);
+    server = app.listen(options.port, () => {});
   });
 
   after(function () {

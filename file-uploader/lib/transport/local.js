@@ -232,7 +232,7 @@ module.exports = function(opts) {
                         fs.unlink(options.uploadDir + '/' + fileName, function(ex) {
                             Object.keys(options.imageVersions).forEach(function(version) {
                                 // TODO - Missing callback
-                                fs.unlink(options.uploadDir + '/' + version + '/' + fileName);
+                                fs.unlink(options.uploadDir + '/' + version + '/' + fileName, (e) => {});
                             });
                             callback(null, {
                                 success: true

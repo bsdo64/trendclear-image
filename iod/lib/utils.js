@@ -14,13 +14,19 @@ class Utils {
   }
 
   hashMatches(hash, data) {
-    let doesMatch = false;
+    return new Promise((resolve, reject) => {
+      let doesMatch = false;
 
-    doesMatch = doesMatch || (this.config.testHash === hash);
-    doesMatch = doesMatch || (this.config.secret.toString().length === 0);
-    doesMatch = doesMatch || (this.hash(data) === hash);
+      doesMatch = doesMatch || (this.config.testHash === hash);
+      doesMatch = doesMatch || (this.config.secret.toString().length === 0);
+      doesMatch = doesMatch || (this.hash(data) === hash);
 
-    return doesMatch
+      if (doesMatch) {
+        return resolve(true);
+      } else {
+        return reject(new Error("Hash doesn't match"))
+      }
+    })
   }
 
   parseFileName(filePath) {
@@ -38,27 +44,19 @@ class Utils {
   renameFile(file, options) {
     return new Promise((resolve, reject) => {
       const newFileName = this.makeFileName(this.parseFileName(file.name));
-
-      fs.rename(file.path, this.makeSaveFilePath(newFileName, options), (err) => {
+      const newFilePath = this.makeSaveFilePath(newFileName, options);
+      fs.rename(file.path, newFilePath, (err) => {
         if (err) {
           return reject(err);
         }
 
-        resolve(newFileName)
+        resolve(newFilePath)
       });
     })
   }
 
-  hasImageFile(parsedUrl, cb) {
-    return new Promise((resolve, reject) => {
-      fs.access(this.getFilePath(parsedUrl), fs.constants.R_OK | fs.constants.W_OK, (err) => {
-        if (err) {
-          return cb(new Error('File not exist!'));
-        }
+  getImageFileMeta(fileName) {
 
-        return cb(null, true);
-      });
-    })
   }
 
   deleteFile(path) {
@@ -79,13 +77,16 @@ class Utils {
         if (error) {
           // System error(maybe)
           if (error.code === 'ENOENT') {
-            // No such dir/file
-            return mkdirp(dir, function(err) {
+            // No such dir
+            return mkdirp(dir, function(err, resultDir) {
               if (err) {
                 return reject(err);
               } else {
-                console.log('The uploads folder was not present, we have created it for you [' + dir + ']');
-                return resolve();
+                if (resultDir) {
+                  console.log('The uploads folder was not present, we have created it for you [' + dir + ']');
+                }
+
+                return resolve(dir);
               }
             });
           } else {
@@ -115,7 +116,6 @@ class Utils {
           // dir is file
           return resolve(filePath);
         } else if (stat && stat.isDirectory()) {
-          // ok
           return reject('It is directory. check file path');
         } else {
           return reject('Unknown error');
