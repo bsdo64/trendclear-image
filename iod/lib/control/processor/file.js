@@ -4,15 +4,28 @@
 const fs = require('fs');
 const FileInfo = require('../../fileInfo');
 
+/**
+ * Class File
+ * 
+ * @Class File
+ */
 class File {
   constructor(options) {
     this.options = options;
   }
 
+  /**
+   * 
+   * @param {*} newFileName 
+   */
   makeSaveFilePath(newFileName) {
     return this.options.formidable.uploadDir + '/' + newFileName;
   }
 
+  /**
+   * 
+   * @param {*} files 
+   */
   makeFileInfos(files) {
     return files.map(file => new FileInfo(file));
   }

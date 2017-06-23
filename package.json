@@ -7,7 +7,8 @@
     "test": "mocha",
     "test:watch": "DEV=WHATCHING nodemon --exec node --trace-warnings node_modules/.bin/gulp",
     "dev:start": "nodemon bin/www.js",
-    "test:cov": "DEV=WHATCHING nodemon --watch ./ node_modules/.bin/nyc --reporter=html --reporter=text mocha --recursive"
+    "test:cov": "DEV=WHATCHING nodemon --watch ./ node_modules/.bin/nyc --reporter=html --reporter=text mocha --recursive",
+    "test:jest": "DEV=WHATCHING jest test/ --watch --coverage"
   },
   "author": "Byeongsu Do <bsdo@naver.com>",
   "license": "ISC",
@@ -28,11 +29,13 @@
   },
   "devDependencies": {
     "chai": "^4.0.2",
+    "eslint": "^4.0.0",
     "form-data": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-jshint": "^1.9.4",
     "gulp-mocha": "^4.3.1",
     "jasmine-node": "1.14.2",
+    "jest": "^20.0.4",
     "jshint-stylish": "^1.0.1",
     "mocha": "^3.4.2",
     "nodemon": "^1.11.0",

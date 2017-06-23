@@ -69,65 +69,8 @@ if (process.env.DEV === 'WHATCHING') {
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public', {maxAge: '1d'}));
 
-const Iod = require('./iod/index.js');
-
-app.get('/iod/:hash', function (req, res) {
-
-  /**
-   * 1. Hash check
-   * 2. Get image from server
-   * 3. Processing image
-   * 4. send image
-   */
-  Iod
-    .getLocalImage(req)
-    .then(image => {
-
-      res.type(image.info.format);
-      res.send(image.data);
-    })
-    .catch(err => {
-
-      res.status(404).end();
-    });
-});
-
-app.post('/iod/upload', function (req, res) {
-
-  if (!req.is('multipart')) {
-    return res.status(404).send();
-  }
-
-  Iod
-    .postLocal(req)
-    .then(result => {
-
-      res.json(result);
-    })
-    .catch(err => {
-      res.json(err);
-    })
-});
-
-app.delete('/iod/upload', function (req, res) {
-  Iod
-    .deleteLocalFile(req)
-    .then(result => {
-      res.json(result);
-    })
-    .catch(err => {
-      res.status(404).json(err);
-    })
-});
-
-app.get('/iod/remote/:hash', function (req, res) {
-
-  Iod.getRemote(req, res, function (err, obj) {
-    if (!err) {
-      res.json(obj);
-    }
-  });
-});
+const IodHandler = require('./routes/iod.js');
+app.use('/iod', IodHandler);
 
 app.get('/uploaded', function (req, res) {
   uploader.get(req, res, function (err, obj) {

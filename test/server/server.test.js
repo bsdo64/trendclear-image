@@ -1,5 +1,5 @@
 const request = require('superagent');
-const expect = require('chai').expect;
+const exp = require('chai').expect;
 const fs = require('fs');
 const { URL } = require('url');
 
@@ -13,11 +13,11 @@ describe('Image Server (deprecated) ', function() {
   let url = options.host + ':' + options.port;
   let testFile;
 
-  before(function() {
+  beforeAll(function() {
     server = app.listen(options.port, () => {});
   });
 
-  after(function () {
+  afterAll(function () {
     server.close();
   });
 
@@ -25,9 +25,13 @@ describe('Image Server (deprecated) ', function() {
     request
       .get(url + '/')
       .end((err, result) => {
-        expect(err).to.be.a('error');
-        expect(err).not.to.be.a('null');
-        expect(result).to.be.a('object');
+        exp(err).to.be.a('error');
+        exp(err).not.to.be.a('null');
+        exp(result).to.be.a('object');
+
+        expect(err).toBeInstanceOf(Error);
+        expect(err).not.toBeNull();
+        expect(result).toHaveProperty('status');
 
         done();
       })
@@ -38,11 +42,11 @@ describe('Image Server (deprecated) ', function() {
       .post(url + '/upload')
       .attach('test.jpg', __dirname + '/test.jpg')
       .end((err, result) => {
-        expect(err).not.to.be.an('error');
+        exp(err).not.to.be.an('error');
 
-        expect(result).to.be.a('object');
-        expect(result.body).have.property('files');
-        expect(result.body.files).to.be.an.instanceof(Array);
+        exp(result).to.be.a('object');
+        exp(result.body).have.property('files');
+        exp(result.body.files).to.be.an.instanceof(Array);
 
         testFile = result.body.files[0];
         done();
@@ -53,7 +57,7 @@ describe('Image Server (deprecated) ', function() {
     request
       .get(url + '/uploaded/files/test.jpg')
       .end((err, result) => {
-        expect(result.type).to.equal('image/jpeg');
+        exp(result.type).to.equal('image/jpeg');
 
         done();
       })
@@ -66,10 +70,10 @@ describe('Image Server (deprecated) ', function() {
       .type('form')
       .send({file: testFile.deleteUrl})
       .end((err, result) => {
-        expect(err).to.be.null;
+        exp(err).to.be.null;
 
-        expect(result).to.be.a('object');
-        expect(result.body.obj.success).to.be.true;
+        exp(result).to.be.a('object');
+        exp(result.body.obj.success).to.be.true;
 
         done();
       })

@@ -60,6 +60,7 @@ class FileInfo {
           return reject(err);
         }
         
+
         this.deleted = true;
         this.path = undefined;
         this.name = this.original_name;

@@ -6,7 +6,8 @@ const shortId = require('shortid');
 
 class Utils {
   constructor(config) {
-    this.config = config
+    this.config = config;
+    this.mkdir = mkdirp;
   }
 
   hash(s) {
@@ -18,7 +19,6 @@ class Utils {
       let doesMatch = false;
 
       doesMatch = doesMatch || (this.config.testHash === hash);
-      doesMatch = doesMatch || (this.config.secret.toString().length === 0);
       doesMatch = doesMatch || (this.hash(data) === hash);
 
       if (doesMatch) {
@@ -35,16 +35,18 @@ class Utils {
 
   checkExistDir(dir) {
     return new Promise((resolve, reject) => {
-      fs.stat(dir, function(error, stat) {
+      fs.stat(dir, (error, stat) => {
         if (error) {
           // System error(maybe)
           if (error.code === 'ENOENT') {
             // No such dir
-            return mkdirp(dir, function(err, resultDir) {
+            return this.mkdir(dir, function(err, resultDir) {
               if (err) {
+                // EACCESS
                 return reject(err);
               } else {
                 if (resultDir) {
+                  //dir not exist and made it
                   console.log('The uploads folder was not present, we have created it for you [' + dir + ']');
                 }
 
@@ -72,8 +74,12 @@ class Utils {
     return new Promise((resolve, reject) => {
       fs.stat(filePath, function(error, stat) {
         if (error) {
-          // System error(maybe)
-          return reject(error);
+          let err;
+          if (error.code = 'ENOENT') {
+            err = new Error('file not exist!');
+          }
+
+          return reject(err);
         } else if (stat && stat.isFile()) {
           // dir is file
           return resolve(filePath);

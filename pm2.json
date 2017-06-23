@@ -1,6 +1,6 @@
 {
   "apps" : [{
-    "name"        : "image",
+    "name": "image",
     "script"      : "server.js",
     "node_args"   : "--harmony",
     "merge_logs"  : true,

@@ -1,7 +1,6 @@
 const request = require('superagent');
 const expect = require('chai').expect;
 const Iod = require('../../iod/index');
-const fs = require('fs');
 
 describe('IOD Image Server', function() {
   let app = require('../../app.js');
@@ -23,11 +22,11 @@ describe('IOD Image Server', function() {
   let url = options.host + ':' + options.port;
   let testFiles;
 
-  before(function() {
+  beforeAll(function() {
     server = app.listen(options.port, () => {})
   });
 
-  after(function () {
+  afterAll(function () {
     server.close();
   });
 

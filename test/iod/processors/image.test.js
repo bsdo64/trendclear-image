@@ -24,22 +24,22 @@ describe('Processing File', () => {
   describe('Construct', () => {
     it('should return instance of FileProcess', () => {
       const options = {};
-      const ip = new FileProcess(options);
+      const fp = new FileProcess(options);
 
-      expect(ip).to.be.an.instanceOf(FileProcess);
-      expect(ip.options).to.be.equal(options);
+      expect(fp).to.be.an.instanceOf(FileProcess);
+      expect(fp.options).to.be.equal(options);
     });
   });
 
   describe('# renameFilesTmpToPublic', () => {
     it('should return array of fileInfo', () => {
       const options = {formidable: {uploadDir: ''}};
-      const ip = new FileProcess(options);
+      const fp = new FileProcess(options);
       const fileInfos = [new FileInfo('test.jpg')];
 
       stubRename.yields(null);
 
-      return ip.renameFilesTmpToPublic(fileInfos)
+      return fp.renameFilesTmpToPublic(fileInfos)
         .then(r => {
           expect(r).to.be.an('array');
           expect(r[0]).to.be.an.instanceOf(FileInfo);

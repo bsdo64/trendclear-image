@@ -10,11 +10,11 @@ describe('Class Iod', () => {
   let sandbox,
     stubProcessor, stubCheckExistFile, stubImgSharp, stubParseForm, stubCheckExistDir;
 
-  before(function (){
+  beforeAll(function (){
     server = app.listen(8080, () => {});
   });
 
-  after(function (){
+  afterAll(function (){
     server.close();
   });
 
@@ -59,8 +59,10 @@ describe('Class Iod', () => {
   describe('# postLocal', () => {
     it('should instance of Promise', () => {
       const postLocal = Iod.postLocal();
-      expect(postLocal).to.be.an.instanceOf(Promise);
-      postLocal.catch(e => expect(e).to.be.an.instanceOf(Error));
+      return postLocal.catch(e => {
+        expect(postLocal).to.be.an.instanceOf(Promise);
+        expect(e).to.be.an.instanceOf(Error)
+      });
     });
 
     it('should check exist of file directory', () => {
@@ -163,7 +165,7 @@ describe('Class Iod', () => {
 
       return deleteLocal
         .catch(e => {
-          expect(e).to.be.an.instanceOf(Error);
+          expect(e.code).to.be.equal('ENOENT');
           expect(deleteLocal).to.be.an.instanceOf(Promise);
         })
     });
