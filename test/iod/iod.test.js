@@ -1,5 +1,4 @@
 const expect = require('chai').expect;
-const fs = require('fs');
 const express = require('express');
 const app = express();
 const sinon = require('sinon');
@@ -67,7 +66,8 @@ describe('Class Iod', () => {
 
     it('should check exist of file directory', () => {
 
-      return Iod.postLocal().catch(e => {
+      return Iod.postLocal().catch((e) => {
+        expect(e).to.be.an.instanceOf(Error);
         expect(stubCheckExistDir.calledTwice).to.be.equal(true);
       })
     });

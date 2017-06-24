@@ -19,7 +19,6 @@ router.get('/:hash', function (req, res) {
       res.send(image.data);
     })
     .catch(err => {
-
       res.status(404).end();
     });
 });

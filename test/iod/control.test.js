@@ -1,9 +1,6 @@
 const Control = require('../../iod/lib/control/index.js');
 const {Image, Request, Response, File} = require('../../iod/lib/control/index.js');
 const expect = require('chai').expect;
-const sinon = require('sinon');
-const path = require('path');
-const fs = require('fs');
 
 describe('Control', () => {
   describe('Constructor', () => {

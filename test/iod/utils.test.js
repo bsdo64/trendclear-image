@@ -4,8 +4,6 @@ const path = require('path');
 const sinon = require('sinon');
 const config = require('../../iod/config');
 const Utils = require('../../iod/lib/utils');
-const crypto = require('crypto');
-const mkdirp = require('mkdirp');
 
 describe('Class Utils', () => {
   const utils = new Utils(config);
@@ -54,7 +52,6 @@ describe('Class Utils', () => {
           expect(result).to.be.equal(true);
         })
         .catch(e => {
-          console.log(e);
           expect(e).to.be.equal(null);
         })
     });

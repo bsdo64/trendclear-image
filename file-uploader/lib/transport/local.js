@@ -1,6 +1,5 @@
 /*jslint node: true */
 const fs = require('fs');
-const formidable = require('formidable');
 const FileInfo = require('../fileinfo.js');
 const sharp = require('sharp');
 const path = require('path');

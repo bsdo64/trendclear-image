@@ -1,7 +1,5 @@
 const request = require('superagent');
 const exp = require('chai').expect;
-const fs = require('fs');
-const { URL } = require('url');
 
 describe('Image Server (deprecated) ', function() {
   let app = require('../../app.js');

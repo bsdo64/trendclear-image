@@ -4,7 +4,6 @@
 const express = require('express');
 const expect = require('chai').expect;
 const ProcessingRequest = require('../../../iod/lib/control/processor/request');
-const sinon = require('sinon');
 const request = require('superagent');
 
 describe('Processing Request', () => {
@@ -75,8 +74,6 @@ describe('Processing Request', () => {
         })
         .catch(e => {
           server.close();
-
-          console.error(e);
           expect(e).to.be.a(null);
         })
     });

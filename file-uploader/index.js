@@ -5,7 +5,6 @@ const FileInfo = require('./lib/fileinfo.js');
 const configs = require('./lib/configs.js');
 const formidable = require('formidable');
 const fs = require('fs');
-const path = require('path');
 
 module.exports = uploadService;
 

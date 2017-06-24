@@ -3,8 +3,6 @@
  */
 
 const formidable = require('formidable');
-const fs = require('fs');
-const http = require('http');
 
 class Request {
   constructor(options) {

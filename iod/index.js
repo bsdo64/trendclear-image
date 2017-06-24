@@ -36,7 +36,7 @@ class Iod {
   }
 
   // Sending processing(ed) image
-  async getLocalImageInfo(req) {
+  async getLocalImageInfo() {
 
   }
 

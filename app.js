@@ -61,9 +61,7 @@ const options = {
 const uploader = require('./file-uploader')(options);
 
 app.use(compression());
-if (process.env.DEV === 'WHATCHING') {
-
-} else {
+if (process.env.DEV !== 'WHATCHING') {
   app.use(logger('common'));
 }
 app.use(bodyParser.urlencoded({extended: true}));
@@ -81,7 +79,7 @@ app.get('/uploaded', function (req, res) {
 });
 
 app.post('/upload', function (req, res) {
-  uploader.post(req, res, function (error, obj, redirect) {
+  uploader.post(req, res, function (error, obj) {
     if (!error) {
       return res.json(obj);
     }
