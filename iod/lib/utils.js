@@ -2,7 +2,6 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const mkdirp  = require('mkdirp');
-const shortId = require('shortid');
 
 class Utils {
   constructor(config) {
@@ -36,6 +35,7 @@ class Utils {
   checkExistDir(dir) {
     return new Promise((resolve, reject) => {
       fs.stat(dir, (error, stat) => {
+        /* istanbul ignore else*/
         if (error) {
           // System error(maybe)
           if (error.code === 'ENOENT') {
@@ -45,6 +45,7 @@ class Utils {
                 // EACCESS
                 return reject(err);
               } else {
+                /* istanbul ignore else*/
                 if (resultDir) {
                   //dir not exist and made it
                   console.log('The uploads folder was not present, we have created it for you [' + dir + ']');
@@ -53,9 +54,16 @@ class Utils {
                 return resolve(dir);
               }
             });
-          } else {
-            return reject(error);
           }
+          
+          let err;
+          /* istanbul ignore else*/
+          if (error.name === 'TypeError') {
+            err = new Error('file not exist!');
+          }
+
+          err = error;
+          return reject(err);
 
         } else if (stat && stat.isFile()) {
           // dir is file
@@ -63,8 +71,6 @@ class Utils {
         } else if (stat && stat.isDirectory()) {
           // ok
           return resolve();
-        } else {
-          return reject('Unknown error');
         }
       });
     });
@@ -73,9 +79,15 @@ class Utils {
   checkExistFile(filePath) {
     return new Promise((resolve, reject) => {
       fs.stat(filePath, function(error, stat) {
+        /* istanbul ignore else*/
         if (error) {
           let err;
-          if (error.code = 'ENOENT') {
+
+          if (error.code === 'ENOENT') {
+            err = new Error('file not exist!');
+          }
+
+          if (error.name === 'TypeError') {
             err = new Error('file not exist!');
           }
 
@@ -84,9 +96,7 @@ class Utils {
           // dir is file
           return resolve(filePath);
         } else if (stat && stat.isDirectory()) {
-          return reject('It is directory. check file path');
-        } else {
-          return reject('Unknown error');
+          return reject(new Error('It is directory. check file path'));
         }
       });
     });

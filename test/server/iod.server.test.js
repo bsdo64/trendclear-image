@@ -49,6 +49,16 @@ describe('IOD Image Server', function() {
       })
   });
 
+  it('should throw error with invalid params', function () {
+    return request
+      .post(url + '/iod/upload')
+      .attach('image_file', __dirname + '/test.abc')
+      .catch((error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.be.equal('Not Found');
+      })
+  });
+
   it('should server post image', function () {
     return request
       .post(url + '/iod/upload')

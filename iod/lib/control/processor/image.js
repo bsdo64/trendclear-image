@@ -6,15 +6,14 @@ const sharp = require('sharp');
 class Image {
   constructor(options) {
     this.options = options;
+    this.sharp = sharp;
   }
 
-  sharp(path) {
-    return sharp(path)
-      .resize(null, null, {
-        kernel: sharp.kernel.lanczos2,
-        interpolator: sharp.interpolator.nohalo
-      })
-      .toBuffer({resolveWithObject: true})
+  convert(path) {
+
+    const s = this.sharp(path);
+
+    return s.toBuffer({resolveWithObject: true});
   }
 }
 

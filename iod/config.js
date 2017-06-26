@@ -10,6 +10,7 @@ const iodFilesDir = path.resolve(iodPath, 'files');
 module.exports = {
   secret: '75a1b28ee65177fbb78000e0fc637b66324a83d2570b932fa475a0671223a1c8',
   testHash: '75a1b28ee65177fbb78000e0fc637b66324a83d2570b932fa475a0671223a1c8',
+  fileTypes: /\.(gif|jpe?g|png)/i,
   server: {
     name: 'iod',
     port: '3002',

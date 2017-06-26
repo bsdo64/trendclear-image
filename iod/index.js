@@ -7,8 +7,8 @@ const Control = require('./lib/control/index.js');
 const FileInfo = require('./lib/fileInfo');
 
 class Iod {
-  constructor(config) {
-    this.config = conf || config;
+  constructor() {
+    this.config = conf;
     this.utils = new Utils(this.config);
     this.Control = Control(this.config);
   }
@@ -27,7 +27,7 @@ class Iod {
       await this.utils.hashMatches(hash, fileName);
       await this.utils.checkExistFile(getFilePath);
 
-      const imgProcessing = await this.Control.processor('Image').sharp(getFilePath);
+      const imgProcessing = await this.Control.processor('Image').convert(getFilePath);
 
       return imgProcessing;
     } catch (e) {
@@ -35,14 +35,14 @@ class Iod {
     }
   }
 
-  // Sending processing(ed) image
-  async getLocalImageInfo() {
+  // // Sending processing(ed) image
+  // async getLocalImageInfo() {
 
-  }
+  // }
 
-  async getRemote() {
+  // async getRemote() {
 
-  }
+  // }
 
   async deleteLocalFile(req) {
     if (!req || !(req && req.body) || !(req && req.body && req.body.fn)) {

@@ -1,8 +1,7 @@
 {
   "apps" : [{
     "name": "image",
-    "script"      : "server.js",
-    "node_args"   : "--harmony",
+    "script"      : "bin/www.js",
     "merge_logs"  : true,
     "cwd"         : ".",
     "env": {

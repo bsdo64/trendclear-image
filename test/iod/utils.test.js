@@ -80,11 +80,11 @@ describe('Class Utils', () => {
     it('should return dir path if dir not exist', () => {
 
       stubFsStat.yields({ code: 'ENOENT' }, null);
-      stubMkdirp.yields(null, null);
+      stubMkdirp.yields(null, {file: 'ok'});
 
-      return utils.checkExistDir('/path/to/file.ext')
+      return utils.checkExistDir('/path/to/dir')
         .then(r => {
-          expect(r).to.be.equal('/path/to/file.ext');
+          expect(r).to.be.equal('/path/to/dir');
         });
     });
 
@@ -93,9 +93,79 @@ describe('Class Utils', () => {
       stubFsStat.yields({ code: 'ENOENT' }, null);
       stubMkdirp.yields({ code: 'EACCESS' }, null);
 
-      return utils.checkExistDir('/path/to/file.ext')
+      return utils.checkExistDir('/path/to/dir')
         .catch(e => {
           expect(e.code).to.be.equal('EACCESS');
+        });
+    });
+
+    it('should throw error if don`t have fs access permission', () => {
+
+      stubFsStat.yields(new TypeError(), null);
+      stubMkdirp.yields({ code: 'ENOENT' }, null);
+
+      return utils.checkExistDir('/path/to/dir')
+        .catch(e => {
+          expect(e).to.be.instanceOf(TypeError);
+        });
+    });
+
+    it('should throw error if path is file', () => {
+
+      stubFsStat.yields(null, {
+        isFile: () => true
+      });
+
+      return utils.checkExistDir('/path/to/dir')
+        .catch(e => {
+          expect(e).to.be.instanceOf(Error);
+        });
+    });
+  });
+
+  describe('# checkExistFile', () => {
+    it('should return file path if file exist', () => {
+
+      stubFsStat.yields(null, {
+        isFile: () => true
+      });
+
+      return utils.checkExistFile('/path/to/exist/file.ext')
+        .then(r => {
+          expect(r).to.be.equal('/path/to/exist/file.ext');
+        });
+    });
+    
+    it('should throw error if file not exist', () => {
+
+      stubFsStat.yields({code: 'ENOENT'}, null);
+
+      return utils.checkExistFile('/path/to/exist/file.ext')
+        .catch(e => {
+          expect(e).to.be.instanceOf(Error);
+        });
+    });
+
+    it('should throw error if path is null', () => {
+
+      stubFsStat.yields({name: 'TypeError'}, null);
+
+      return utils.checkExistFile()
+        .catch(e => {
+          expect(e).to.be.instanceOf(Error);
+        });
+    });
+
+    it('should throw error if path is directory', () => {
+
+      stubFsStat.yields(null, {
+        isFile: () => false,
+        isDirectory: () => true
+      });
+
+      return utils.checkExistFile()
+        .catch(e => {
+          expect(e).to.be.instanceOf(Error);
         });
     });
   });

@@ -2,9 +2,18 @@ const express = require('express');
 const router = express.Router();
 
 const Iod = require('../iod/index.js');
+const LRU = require('lru-cache');
+const cache = LRU({
+  max: 500
+});
 
 router.get('/:hash', function (req, res) {
 
+  let image = cache.get(req.url);
+  if (image) {
+    res.type(image.info.format);
+    return res.send(image.data);
+  }
   /**
    * 1. Hash check
    * 2. Get image from server
@@ -14,7 +23,7 @@ router.get('/:hash', function (req, res) {
   Iod
     .getLocalImage(req)
     .then(image => {
-
+      cache.set(req.url, image);
       res.type(image.info.format);
       res.send(image.data);
     })
@@ -32,11 +41,10 @@ router.post('/upload', function (req, res) {
   Iod
     .postLocal(req)
     .then(result => {
-
       res.json(result);
     })
     .catch(err => {
-      res.json(err);
+      res.status(404).end();
     })
 });
 

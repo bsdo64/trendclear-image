@@ -8,12 +8,12 @@ const shortId = require('shortid');
 
 class FileInfo {
   constructor(file) {
+    /* istanbul ignore else*/
     if (typeof file === 'string') {
       this.path = file;
       this.original_name = this.name = path.basename(this.path);
 
     } else if (typeof file === 'object') {
-
       const json = file.toJSON();
       for(let prop in json) {
         if (json.hasOwnProperty(prop)) {

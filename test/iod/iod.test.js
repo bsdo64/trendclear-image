@@ -7,7 +7,7 @@ let Iod = require('../../iod/index.js');
 describe('Class Iod', () => {
   let server;
   let sandbox,
-    stubProcessor, stubCheckExistFile, stubImgSharp, stubParseForm, stubCheckExistDir;
+    stubProcessor, stubCheckExistFile, stubConverImg, stubParseForm, stubCheckExistDir;
 
   beforeAll(function (){
     server = app.listen(8080, () => {});
@@ -23,10 +23,10 @@ describe('Class Iod', () => {
     stubCheckExistDir = sandbox.stub(Iod.utils, 'checkExistDir');
     stubCheckExistFile = sandbox.stub(Iod.utils, 'checkExistFile');
     stubParseForm = sandbox.stub();
-    stubImgSharp = sandbox.stub();
+    stubConverImg = sandbox.stub();
     stubProcessor = sandbox.stub(Iod.Control, 'processor');
     stubProcessor.withArgs('Image').returns({
-      sharp: stubImgSharp,
+      convert: stubConverImg,
     });
     stubProcessor.withArgs('Request').returns({
       parseForm: stubParseForm,
@@ -47,7 +47,6 @@ describe('Class Iod', () => {
     });
 
     it('should have methods', () => {
-      expect(Iod).to.have.property('getRemote');
 
       expect(Iod).to.have.property('getLocalImage');
       expect(Iod).to.have.property('postLocal');
@@ -141,7 +140,7 @@ describe('Class Iod', () => {
 
       const buff = new Buffer('test');
       stubCheckExistFile.returns(Promise.resolve(1));
-      stubImgSharp.resolves(buff);
+      stubConverImg.resolves(buff);
 
       return Iod.getLocalImage(req)
         .then(result => {

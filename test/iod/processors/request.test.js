@@ -2,7 +2,6 @@
  * Created by dobyeongsu on 2017. 6. 21..
  */
 const express = require('express');
-const expect = require('chai').expect;
 const ProcessingRequest = require('../../../iod/lib/control/processor/request');
 const request = require('superagent');
 
@@ -10,17 +9,20 @@ describe('Processing Request', () => {
 
   describe('Construct', () => {
     it('should return instance of Request', () => {
-      const options = {};
+      const options = {
+        fileTypes: /\.(gif|jpe?g|png)/i
+      };
       const rqst = new ProcessingRequest(options);
 
-      expect(rqst).to.be.an.instanceOf(ProcessingRequest);
-      expect(rqst.options).to.be.equal(options);
+      expect(rqst).toBeInstanceOf(ProcessingRequest);
+      expect(rqst.options).toEqual(options);
     });
   });
 
   describe('# parseForm', () => {
     let rqst;
     let server, app;
+    let options;
 
     it('should throw error without req', () => {
       rqst = new ProcessingRequest();
@@ -28,15 +30,15 @@ describe('Processing Request', () => {
       return rqst
         .parseForm()
         .catch(e => {
-          expect(e).to.be.an.instanceOf(Error);
-          expect(e.message).to.be.equal('No Request params');
+          expect(e).toBeInstanceOf(Error);
+          expect(e.message).toEqual('No Request params');
         })
     });
 
     it('should return values', () => {
       app = express();
       app.use((req, res) => {
-        const options = {
+        options = {
           formidable: {
             tmpDir: require('os').tmpdir(),
             maxFields: 1000,
@@ -45,7 +47,8 @@ describe('Processing Request', () => {
             encoding: 'utf-8',
             type: null,
             multiples: false,
-          }
+          },
+          fileTypes: /\.(gif|jpe?g|png)/i
         };
 
         rqst = new ProcessingRequest(options);
@@ -69,12 +72,126 @@ describe('Processing Request', () => {
         .then(r => {
           server.close();
 
-          expect(r.body).to.have.property('fields');
-          expect(r.body).to.have.property('files');
+          expect(r.body).toHaveProperty('fields');
+          expect(r.body).toHaveProperty('files');
         })
         .catch(e => {
           server.close();
-          expect(e).to.be.a(null);
+          expect(e).toBeNull();
+        })
+    });
+
+    it('should throw error and unlink file when ext is not valid', () => {
+      const EventEmitter = require('events');
+      const req = new EventEmitter();
+      const form = req;
+      form.parse = jest.fn();
+      
+      const fs = require('fs');
+      const spy = jest.spyOn(fs, 'unlink').mockImplementation((path, cb) => {
+        return cb(null)
+      });
+
+      rqst = new ProcessingRequest(options);
+      rqst.formidable.IncomingForm = jest.fn(() => {
+        return form;
+      });
+
+      const fileName = 'test.abc';
+      const fileValue = {
+        name: 'test.abc',
+        path: '/path/to/tmp/invalidFile'
+      };
+      setTimeout(function() {
+        req.emit('file', fileName, fileValue);
+      }, 1)
+
+      return rqst
+        .parseForm(req)
+        .catch(e => {
+          expect(e).toEqual(new Error('No file types'));
+
+          spy.mockReset();
+          spy.mockRestore();
+        })
+    });
+
+    it('should throw error and unlink error (system error)', () => {
+      const EventEmitter = require('events');
+      const req = new EventEmitter();
+      const form = req;
+      form.parse = jest.fn();
+      
+      const fs = require('fs');
+      const spy = jest.spyOn(fs, 'unlink').mockImplementation((path, cb) => {
+        return cb({fake: 'error'})
+      });
+
+      rqst = new ProcessingRequest(options);
+      rqst.formidable.IncomingForm = jest.fn(() => {
+        return form;
+      });
+
+      const fileName = 'test.abc';
+      const fileValue = {
+        name: 'test.abc',
+        path: '/path/to/tmp/invalidFile'
+      };
+      setTimeout(function() {
+        req.emit('file', fileName, fileValue);
+      }, 1)
+
+      return rqst
+        .parseForm(req)
+        .catch(e => {
+          expect(e).toEqual(new Error('File couldn`t removed'));
+          spy.mockReset();
+          spy.mockRestore();
+        })
+    });
+
+    it('should throw error when formidable gets error', () => {
+      const EventEmitter = require('events');
+      const req = new EventEmitter();
+      const form = req;
+      form.parse = jest.fn();
+
+      rqst = new ProcessingRequest(options);
+      rqst.formidable.IncomingForm = jest.fn(() => {
+        return form;
+      });
+
+      const formidableError = {hello: 'world'};
+      setTimeout(function() {
+        req.emit('error', formidableError);
+      }, 1)
+
+      return rqst
+        .parseForm(req)
+        .catch(e => {
+          expect(e).toEqual(formidableError);
+        })
+    });
+
+    it('should throw error when formidable throw aborted', () => {
+      const EventEmitter = require('events');
+      const req = new EventEmitter();
+      const form = req;
+      form.parse = jest.fn();
+
+      rqst = new ProcessingRequest(options);
+      rqst.formidable.IncomingForm = jest.fn(() => {
+        return form;
+      });
+
+      setTimeout(function() {
+        req.emit('aborted');
+      }, 1)
+
+      return rqst
+        .parseForm(req)
+        .catch(e => {
+          expect(e).toEqual(new Error('aborted'));
         })
     });
   });

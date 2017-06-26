@@ -1,63 +1,37 @@
 /**
  * Created by dobyeongsu on 2017. 6. 21..
  */
-const expect = require('chai').expect;
-const sinon = require('sinon');
-const FileInfo = require('../../../iod/lib/fileInfo');
-const FileProcess = require('../../../iod/lib/control/processor/file');
-const fs = require('fs');
+const ImageProcess = require('../../../iod/lib/control/processor/image');
 
-describe('Processing File', () => {
-  let sandbox,
-      stubRename;
+describe('Processing Image', () => {
+  const options = {};  
+  let sharpMock, ip = new ImageProcess(options);
 
-  beforeEach(() => {
-    sandbox = sinon.sandbox.create();
-
-    stubRename = sandbox.stub(fs, 'rename');
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-  });
+  beforeAll(() => {
+    sharpMock = jest.fn((path) => {
+      const obj = {
+       resize: jest.fn(() => { return obj; }), 
+       toBuffer: jest.fn(() => { return Promise.resolve(new Buffer('hello')); }), 
+      };
+      return obj;
+    });
+    ip.sharp = sharpMock
+  })
 
   describe('Construct', () => {
-    it('should return instance of FileProcess', () => {
-      const options = {};
-      const fp = new FileProcess(options);
+    it('should return instance of ImageProcess', () => {
 
-      expect(fp).to.be.an.instanceOf(FileProcess);
-      expect(fp.options).to.be.equal(options);
+      expect(ip).toBeInstanceOf(ImageProcess);
+      expect(ip.options).toEqual(options);
     });
   });
 
-  describe('# renameFilesTmpToPublic', () => {
-    it('should return array of fileInfo', () => {
-      const options = {formidable: {uploadDir: ''}};
-      const fp = new FileProcess(options);
-      const fileInfos = [new FileInfo('test.jpg')];
+  describe('# convert', () => {
+    it('should ', () => {
 
-      stubRename.yields(null);
-
-      return fp.renameFilesTmpToPublic(fileInfos)
+      return ip.convert('/file/path')
         .then(r => {
-          expect(r).to.be.an('array');
-          expect(r[0]).to.be.an.instanceOf(FileInfo);
-        })
-    });
-
-    it('should throw error when file path is not correct', () => {
-      const options = {formidable: {uploadDir: ''}};
-      const expectError = new Error('errorPath');
-      const ip = new FileProcess(options);
-      const fileInfos = [new FileInfo('errorPath')];
-
-      stubRename.yields(expectError);
-
-      return ip.renameFilesTmpToPublic(fileInfos)
-        .catch(e => {
-          expect(e).to.be.equal(expectError);
-          expect(e).to.be.an.instanceOf(Error);
+          expect(r).toBeInstanceOf(Buffer);
         })
     });
   });

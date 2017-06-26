@@ -3,6 +3,7 @@
  */
 
 const formidable = require('formidable');
+const fs = require('fs');
 
 class Request {
   constructor(options) {
@@ -36,18 +37,21 @@ class Request {
       form.on('error', (e) => {
         reject(e);
       });
-
-      form.on('progress', (bytesReceived, bytesExpected) => {
-        if (bytesExpected < bytesReceived) {
-          reject(new Error('file size error'))
-        }
-      });
-
+      
       form.on('aborted', () => {
         reject(new Error('aborted'));
       });
 
       form.on('file', (name, value) => {
+        if (!this.options.fileTypes.test(value.name)) {
+          return fs.unlink(value.path, (err) => {
+            if (err) {
+              return reject(new Error('File couldn`t removed'))
+            }
+            return reject(new Error('No file types'));
+          });
+        }
+        
         this.files.push(value);
         this.fileFields[name] = this.fileFields[name] || [];
         this.fileFields[name].push(value)
