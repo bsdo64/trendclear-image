@@ -35,6 +35,7 @@ class File {
       return new Promise((resolve, reject) => {
         const newFileName = fileInfo.makeHashFileName();
         const newFilePath = this.makeSaveFilePath(newFileName);
+
         fs.rename(fileInfo.path, newFilePath, (err) => {
           if (err) {
             return reject(err);

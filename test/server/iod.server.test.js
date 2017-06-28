@@ -1,5 +1,4 @@
 const request = require('superagent');
-const expect = require('chai').expect;
 const Iod = require('../../iod/index');
 
 describe('IOD Image Server', function() {
@@ -34,7 +33,7 @@ describe('IOD Image Server', function() {
     return request
       .get(url)
       .catch((err) => {
-        expect(err).to.be.a('error');
+        expect(err).toBeInstanceOf(Error);
       });
   });
 
@@ -44,8 +43,8 @@ describe('IOD Image Server', function() {
       .send({hello: 'world'})
       .catch((error) => {
 
-        expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.be.equal('Not Found');
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toEqual('Not Found');
       })
   });
 
@@ -54,8 +53,8 @@ describe('IOD Image Server', function() {
       .post(url + '/iod/upload')
       .attach('image_file', __dirname + '/test.abc')
       .catch((error) => {
-        expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.be.equal('Not Found');
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toEqual('Not Found');
       })
   });
 
@@ -69,11 +68,11 @@ describe('IOD Image Server', function() {
       .field('user[name]', 'Tobi2')
       .then((result) => {
 
-        expect(result.body).to.be.an('object').that.has.all.keys('files');
-        expect(result.body).to.nested.include({'files[0].original_name': 'test.jpg'});
+        expect(result.body).toHaveProperty('files');
+        expect(result.body.files[0]).toHaveProperty('original_name', 'test.jpg');
 
         testFiles = result.body.files;
-      })
+      });
   });
 
   it('should server get image', function () {
@@ -84,7 +83,7 @@ describe('IOD Image Server', function() {
       .query({fn: testFiles[0].name})
       .then((result) => {
 
-        expect(result.body).to.be.an.instanceOf(Buffer);
+        expect(result.body).toBeInstanceOf(Buffer);
       })
   });
 
@@ -93,8 +92,8 @@ describe('IOD Image Server', function() {
       .get(url + `/iod/__hash__`)
       .query({fn: testFiles[0].name})
       .catch((error) => {
-        expect(error).to.be.an.instanceOf(Error);
-        expect(error.message).to.be.equal("Not Found");
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toEqual("Not Found");
       })
   });
 
@@ -105,8 +104,9 @@ describe('IOD Image Server', function() {
       .send({ fn: testFiles[0].name })
       .then((result) => {
 
-        expect(result.body).to.be.a('object');
-        expect(result.body.deleted).to.be.a('object').to.have.all.keys(['name', 'original_name']);
+
+        expect(result.body.deleted).toHaveProperty('name');
+        expect(result.body.deleted).toHaveProperty('name');
 
       })
   });
@@ -118,8 +118,8 @@ describe('IOD Image Server', function() {
       .send({ fn: null })
       .catch((result) => {
 
-        expect(result).to.be.an.instanceOf(Error);
-        expect(result.message).to.be.equal('Not Found');
+        expect(result).toBeInstanceOf(Error);
+        expect(result.message).toEqual('Not Found');
 
       })
   });
@@ -130,8 +130,8 @@ describe('IOD Image Server', function() {
       .type('form')
       .catch((result) => {
 
-        expect(result).to.be.an.instanceOf(Error);
-        expect(result.message).to.be.equal('Not Found');
+        expect(result).toBeInstanceOf(Error);
+        expect(result.message).toEqual('Not Found');
 
       })
   });

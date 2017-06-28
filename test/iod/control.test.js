@@ -1,6 +1,5 @@
 const Control = require('../../iod/lib/control/index.js');
 const {Image, Request, Response, File} = require('../../iod/lib/control/index.js');
-const expect = require('chai').expect;
 
 describe('Control', () => {
   describe('Constructor', () => {
@@ -8,14 +7,14 @@ describe('Control', () => {
       const options = {};
       const control = new Control(options);
 
-      expect(control).to.be.an.instanceOf(Control);
+      expect(control).toBeInstanceOf(Control);
     });
 
     it('should construct without new', () => {
       const options = {};
       const control = Control(options);
 
-      expect(control).to.be.an.instanceOf(Control);
+      expect(control).toBeInstanceOf(Control);
     });
   });
 
@@ -28,10 +27,27 @@ describe('Control', () => {
       const responseProcessor = Control(options).processor('Response');
       const fileProcessor = Control(options).processor('File');
 
-      expect(imageProcessor).to.be.an.instanceOf(Image);
-      expect(requestProcessor).to.be.an.instanceOf(Request);
-      expect(responseProcessor).to.be.an.instanceOf(Response);
-      expect(fileProcessor).to.be.an.instanceOf(File);
+      expect(imageProcessor).toBeInstanceOf(Image);
+      expect(requestProcessor).toBeInstanceOf(Request);
+      expect(responseProcessor).toBeInstanceOf(Response);
+      expect(fileProcessor).toBeInstanceOf(File);
+
+    });
+
+    it('should get processor modules with array', async() => {
+
+      const options = {};
+      const [
+        imageProcessor,
+        requestProcessor,
+        responseProcessor,
+        fileProcessor
+      ] = Control(options).processor(['Image', 'Request', 'Response', 'File']);
+
+      expect(imageProcessor).toBeInstanceOf(Image);
+      expect(requestProcessor).toBeInstanceOf(Request);
+      expect(responseProcessor).toBeInstanceOf(Response);
+      expect(fileProcessor).toBeInstanceOf(File);
 
     });
   });

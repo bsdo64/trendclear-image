@@ -22,13 +22,16 @@ class Iod {
     try {
       const hash = req.params.hash;
       const fileName = req.query.fn;
+      const t = req.query.t;
       const getFilePath = this.utils.getPathWithFileName(fileName);
 
       await this.utils.hashMatches(hash, fileName);
       await this.utils.checkExistFile(getFilePath);
 
-      const imgProcessing = await this.Control.processor('Image').convert(getFilePath);
-
+      const [imgP, reqP] = this.Control.processor(['Image', 'Request']);
+      const transFormObj = reqP.parseTransformQuery(t);
+      const imgProcessing = await imgP.convertImage(getFilePath, transFormObj);
+      
       return imgProcessing;
     } catch (e) {
       throw e;
@@ -73,12 +76,11 @@ class Iod {
         this.utils.checkExistDir(this.config.formidable.uploadDir)
       ]);
 
-      const fileProcessor = this.Control.processor('File');
-      const requestProcessor = this.Control.processor('Request');
+      const [fileP, reqP] = this.Control.processor(['File', 'Request']);
 
-      const formidableResults = await requestProcessor.parseForm(req);
-      const fileInfos = fileProcessor.makeFileInfos(formidableResults.files);
-      const newFileInfos = await fileProcessor.renameFilesTmpToPublic(fileInfos);
+      const formidableResults = await reqP.parseForm(req);
+      const fileInfos = fileP.makeFileInfos(formidableResults.files);
+      const newFileInfos = await fileP.renameFilesTmpToPublic(fileInfos);
 
       const results = {};
       results.files = newFileInfos.map(fileInfo => fileInfo.toJSON());

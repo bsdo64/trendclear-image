@@ -1,24 +1,20 @@
 /**
  * Created by dobyeongsu on 2017. 6. 21..
  */
-const expect = require('chai').expect;
-const sinon = require('sinon');
 const FileInfo = require('../../../iod/lib/fileInfo');
 const FileProcess = require('../../../iod/lib/control/processor/file');
 const fs = require('fs');
 
 describe('Processing File', () => {
-  let sandbox,
-      stubRename;
+  let stubRename;
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create();
-
-    stubRename = sandbox.stub(fs, 'rename');
+    stubRename = jest.spyOn(fs, 'rename');
   });
 
   afterEach(() => {
-    sandbox.restore();
+    stubRename.mockReset();
+    stubRename.mockRestore();
   });
 
   describe('Construct', () => {
@@ -26,8 +22,8 @@ describe('Processing File', () => {
       const options = {};
       const fp = new FileProcess(options);
 
-      expect(fp).to.be.an.instanceOf(FileProcess);
-      expect(fp.options).to.be.equal(options);
+      expect(fp).toBeInstanceOf(FileProcess);
+      expect(fp.options).toEqual(options);
     });
   });
 
@@ -37,12 +33,12 @@ describe('Processing File', () => {
       const fp = new FileProcess(options);
       const fileInfos = [new FileInfo('test.jpg')];
 
-      stubRename.yields(null);
+      stubRename.mockImplementation((path, newPath, cb) => cb(null));
 
       return fp.renameFilesTmpToPublic(fileInfos)
         .then(r => {
-          expect(r).to.be.an('array');
-          expect(r[0]).to.be.an.instanceOf(FileInfo);
+          expect(r).toBeInstanceOf(Array);
+          expect(r[0]).toBeInstanceOf(FileInfo);
         })
     });
 
@@ -52,12 +48,12 @@ describe('Processing File', () => {
       const ip = new FileProcess(options);
       const fileInfos = [new FileInfo('errorPath')];
 
-      stubRename.yields(expectError);
+      stubRename.mockImplementation((path, newPath, cb) => cb(expectError));
 
       return ip.renameFilesTmpToPublic(fileInfos)
         .catch(e => {
-          expect(e).to.be.equal(expectError);
-          expect(e).to.be.an.instanceOf(Error);
+          expect(e).toEqual(expectError);
+          expect(e).toBeInstanceOf(Error);
         })
     });
   });

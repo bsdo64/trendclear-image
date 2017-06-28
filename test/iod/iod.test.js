@@ -1,56 +1,63 @@
-const expect = require('chai').expect;
 const express = require('express');
 const app = express();
-const sinon = require('sinon');
 let Iod = require('../../iod/index.js');
 
 describe('Class Iod', () => {
   let server;
-  let sandbox,
-    stubProcessor, stubCheckExistFile, stubConverImg, stubParseForm, stubCheckExistDir;
+  let stubProcessor, stubCheckExistFile, stubConverImg, stubParseForm, stubCheckExistDir, stubTransFormQuery;
 
-  beforeAll(function (){
+  beforeAll(() => {
     server = app.listen(8080, () => {});
   });
 
-  afterAll(function (){
+  afterAll(() => {
     server.close();
   });
 
   beforeEach(()=> {
-    sandbox = sinon.sandbox.create();
+    stubCheckExistDir = jest.spyOn(Iod.utils, 'checkExistDir');
+    stubCheckExistFile = jest.spyOn(Iod.utils, 'checkExistFile');
+    stubParseForm = jest.fn();
+    stubTransFormQuery = jest.fn().mockImplementation(() => {});
+    stubConverImg = jest.fn();
+    stubProcessor = jest.spyOn(Iod.Control, 'processor');
+    stubProcessor.mockImplementation((name) => {
+      this.Image = {
+        convertImage: stubConverImg
+      };
+      this.Request = {
+        parseForm: stubParseForm,
+        parseTransformQuery: stubTransFormQuery,
+      };
 
-    stubCheckExistDir = sandbox.stub(Iod.utils, 'checkExistDir');
-    stubCheckExistFile = sandbox.stub(Iod.utils, 'checkExistFile');
-    stubParseForm = sandbox.stub();
-    stubConverImg = sandbox.stub();
-    stubProcessor = sandbox.stub(Iod.Control, 'processor');
-    stubProcessor.withArgs('Image').returns({
-      convert: stubConverImg,
-    });
-    stubProcessor.withArgs('Request').returns({
-      parseForm: stubParseForm,
+      if (Array.isArray(name)) {
+        return name.map(v => this[v])
+      }
+
+      return this[name];
     });
   });
 
   afterEach(()=> {
-    sandbox.restore();
+    stubProcessor.mockRestore();
+    stubCheckExistDir.mockRestore();
+    stubCheckExistFile.mockRestore();
   });
 
   describe('Constructor', () => {
     it('should have properties', () => {
 
-      expect(Iod).to.have.property('config');
-      expect(Iod).to.have.property('utils');
-      expect(Iod).to.have.property('Control');
+      expect(Iod).toHaveProperty('config');
+      expect(Iod).toHaveProperty('utils');
+      expect(Iod).toHaveProperty('Control');
 
     });
 
     it('should have methods', () => {
 
-      expect(Iod).to.have.property('getLocalImage');
-      expect(Iod).to.have.property('postLocal');
-      expect(Iod).to.have.property('deleteLocalFile');
+      expect(Iod).hasOwnProperty('getLocalImage');
+      expect(Iod).hasOwnProperty('postLocal');
+      expect(Iod).hasOwnProperty('deleteLocalFile');
     });
   });
 
@@ -58,29 +65,28 @@ describe('Class Iod', () => {
     it('should instance of Promise', () => {
       const postLocal = Iod.postLocal();
       return postLocal.catch(e => {
-        expect(postLocal).to.be.an.instanceOf(Promise);
-        expect(e).to.be.an.instanceOf(Error)
+        expect(postLocal).toBeInstanceOf(Promise);
+        expect(e).toBeInstanceOf(Error)
       });
     });
 
     it('should check exist of file directory', () => {
-
       return Iod.postLocal().catch((e) => {
-        expect(e).to.be.an.instanceOf(Error);
-        expect(stubCheckExistDir.calledTwice).to.be.equal(true);
+        expect(e).toBeInstanceOf(Error);
+        expect(stubCheckExistDir).toHaveBeenCalledTimes(2);
       })
     });
 
     it('should throw error with no args', async() => {
 
       try {
-        stubParseForm.rejects(new Error('No Request params'));
+        stubParseForm.mockImplementation(() => Promise.reject(new Error('No Request params')));
 
         await Iod.postLocal();
       } catch (e) {
 
-        expect(e).to.be.an.instanceOf(Error);
-        expect(e.message).to.be.equal('No Request params');
+        expect(e).toBeInstanceOf(Error);
+        expect(e.message).toEqual('No Request params');
       }
     });
   });
@@ -106,50 +112,50 @@ describe('Class Iod', () => {
     };
 
     it('should instance of Promise', function () {
-      stubCheckExistFile.returns(Promise.resolve(true));
+      stubCheckExistFile.mockImplementation(() => (Promise.resolve(true)));
 
       const getLocal = Iod.getLocalImage(req);
       return getLocal
         .catch(e => {
-          expect(e).to.be.an.instanceOf(Error);
-          expect(getLocal).to.be.an.instanceOf(Promise);
+          expect(e).toBeInstanceOf(Error);
+          expect(getLocal).toBeInstanceOf(Promise);
         })
     });
 
     it('should throw error without req', function () {
 
-      stubCheckExistFile.returns(Promise.resolve(1));
+      stubCheckExistFile.mockImplementation(() => (Promise.resolve(1)));
 
       return Iod.getLocalImage()
         .catch(result => {
-          expect(result).to.be.an.instanceOf(Error);
+          expect(result).toBeInstanceOf(Error);
         })
     });
 
     it('should throw error without req.query', function () {
 
-      stubCheckExistFile.returns(Promise.resolve(1));
+      stubCheckExistFile.mockImplementation(() => (Promise.resolve(1)));
 
       return Iod.getLocalImage({query: 'test'})
         .catch(result => {
-          expect(result).to.be.an.instanceOf(Error);
+          expect(result).toBeInstanceOf(Error);
         })
     });
 
     it('should return result of buffer image', function () {
 
       const buff = new Buffer('test');
-      stubCheckExistFile.returns(Promise.resolve(1));
-      stubConverImg.resolves(buff);
+      stubCheckExistFile.mockImplementation(() => (Promise.resolve(1)));
+      stubConverImg.mockImplementation(() => (Promise.resolve(buff)));
 
       return Iod.getLocalImage(req)
         .then(result => {
-          expect(result).to.be.an.instanceOf(Buffer);
-          expect(result).to.be.equal(buff);
+          expect(result).toBeInstanceOf(Buffer);
+          expect(result).toEqual(buff);
         })
         .catch(e => {
           console.log(e);
-          expect(e).to.be.a(null);
+          expect(e).toBeNull();
         })
     })
   });
@@ -158,14 +164,14 @@ describe('Class Iod', () => {
     let req = { body: { fn: 'test.jpg' } };
 
     it('should instance of Promise', function () {
-      stubCheckExistFile.returns(Promise.resolve(true));
+      stubCheckExistFile.mockImplementation(() => (Promise.resolve(true)));
 
       const deleteLocal = Iod.deleteLocalFile(req);
 
       return deleteLocal
         .catch(e => {
-          expect(e.code).to.be.equal('ENOENT');
-          expect(deleteLocal).to.be.an.instanceOf(Promise);
+          expect(e.code).toEqual('ENOENT');
+          expect(deleteLocal).toBeInstanceOf(Promise);
         })
     });
 
@@ -175,8 +181,8 @@ describe('Class Iod', () => {
 
       return Iod.deleteLocalFile()
         .catch(result => {
-          expect(result).to.be.an.instanceOf(Error);
-          expect(result.message).to.be.equal(expectedError.message);
+          expect(result).toBeInstanceOf(Error);
+          expect(result.message).toEqual(expectedError.message);
         })
     });
   });

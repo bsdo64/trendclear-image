@@ -9,9 +9,14 @@ class Image {
     this.sharp = sharp;
   }
 
-  convert(path) {
-
+  convertImage(path, transform = {}) {
     const s = this.sharp(path);
+
+    console.log(transform);
+
+    if (transform.w) {
+
+    }
 
     return s.toBuffer({resolveWithObject: true});
   }

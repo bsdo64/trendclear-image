@@ -1,5 +1,4 @@
 const request = require('superagent');
-const exp = require('chai').expect;
 
 describe('Image Server (deprecated) ', function() {
   let app = require('../../app.js');
@@ -23,9 +22,6 @@ describe('Image Server (deprecated) ', function() {
     request
       .get(url + '/')
       .end((err, result) => {
-        exp(err).to.be.a('error');
-        exp(err).not.to.be.a('null');
-        exp(result).to.be.a('object');
 
         expect(err).toBeInstanceOf(Error);
         expect(err).not.toBeNull();
@@ -40,11 +36,9 @@ describe('Image Server (deprecated) ', function() {
       .post(url + '/upload')
       .attach('test.jpg', __dirname + '/test.jpg')
       .end((err, result) => {
-        exp(err).not.to.be.an('error');
-
-        exp(result).to.be.a('object');
-        exp(result.body).have.property('files');
-        exp(result.body.files).to.be.an.instanceof(Array);
+        expect(err).not.toBeInstanceOf(Error);
+        expect(result.body).toHaveProperty('files');
+        expect(result.body.files).toBeInstanceOf(Array);
 
         testFile = result.body.files[0];
         done();
@@ -55,7 +49,7 @@ describe('Image Server (deprecated) ', function() {
     request
       .get(url + '/uploaded/files/test.jpg')
       .end((err, result) => {
-        exp(result.type).to.equal('image/jpeg');
+        expect(result.type).toEqual('image/jpeg');
 
         done();
       })
@@ -68,11 +62,9 @@ describe('Image Server (deprecated) ', function() {
       .type('form')
       .send({file: testFile.deleteUrl})
       .end((err, result) => {
-        exp(err).to.be.null;
 
-        exp(result).to.be.a('object');
-        exp(result.body.obj.success).to.be.true;
-
+        expect(err).toBeNull();
+        expect(result.body.obj.success).toBe(true);
         done();
       })
   });

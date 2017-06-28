@@ -14,6 +14,33 @@ class Request {
     this.files = [];
   }
 
+  _checkNaN(string) {
+    return isNaN(string * 1)
+  }
+
+  parseTransformQuery(transformString) {
+    if (!transformString) {
+        return {};
+      }
+      
+    return transformString.split(',').reduce((prev, curr) => {
+      const [key, value] = curr.split('_');
+
+      if (this._checkNaN(value)) {
+        prev[key] = prev[key] || {};
+
+        prev[key] = Object.assign({
+          [value]: true
+        }, prev[key]);
+        
+      } else {
+        prev[key] = value * 1;
+      }
+
+      return prev;
+    }, {});
+  }
+
   parseForm(req) {
     return new Promise((resolve, reject) => {
 

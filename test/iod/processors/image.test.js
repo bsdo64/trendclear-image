@@ -16,7 +16,7 @@ describe('Processing Image', () => {
       return obj;
     });
     ip.sharp = sharpMock
-  })
+  });
 
   describe('Construct', () => {
     it('should return instance of ImageProcess', () => {
@@ -26,13 +26,30 @@ describe('Processing Image', () => {
     });
   });
 
-  describe('# convert', () => {
-    it('should ', () => {
+  describe('# convertImage', () => {
+    it('should return buffer', () => {
 
-      return ip.convert('/file/path')
+      return ip.convertImage('/file/path')
         .then(r => {
           expect(r).toBeInstanceOf(Buffer);
         })
+    });
+
+    it('should return buffer with options', () => {
+
+      const opt = {
+        w: 120,
+        c: {
+          fit: true,
+          crop: true,
+          limit: true,
+        },
+        h: 120,
+      };
+      return ip.convertImage('/file/path', opt)
+          .then(r => {
+            expect(r).toBeInstanceOf(Buffer);
+          })
     });
   });
 });

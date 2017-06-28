@@ -93,7 +93,8 @@ describe('Processing Request', () => {
       });
 
       rqst = new ProcessingRequest(options);
-      rqst.formidable.IncomingForm = jest.fn(() => {
+      const spyForm = jest.spyOn(rqst.formidable, 'IncomingForm');
+      spyForm.mockImplementation(() => {
         return form;
       });
 
@@ -102,6 +103,7 @@ describe('Processing Request', () => {
         name: 'test.abc',
         path: '/path/to/tmp/invalidFile'
       };
+      
       setTimeout(function() {
         req.emit('file', fileName, fileValue);
       }, 1)
@@ -113,6 +115,8 @@ describe('Processing Request', () => {
 
           spy.mockReset();
           spy.mockRestore();
+          spyForm.mockReset();
+          spyForm.mockRestore();
         })
     });
 
@@ -128,7 +132,8 @@ describe('Processing Request', () => {
       });
 
       rqst = new ProcessingRequest(options);
-      rqst.formidable.IncomingForm = jest.fn(() => {
+      const spyForm = jest.spyOn(rqst.formidable, 'IncomingForm');
+      spyForm.mockImplementation(() => {
         return form;
       });
 
@@ -145,8 +150,11 @@ describe('Processing Request', () => {
         .parseForm(req)
         .catch(e => {
           expect(e).toEqual(new Error('File couldn`t removed'));
+          
           spy.mockReset();
           spy.mockRestore();
+          spyForm.mockReset();
+          spyForm.mockRestore();
         })
     });
 
@@ -157,7 +165,8 @@ describe('Processing Request', () => {
       form.parse = jest.fn();
 
       rqst = new ProcessingRequest(options);
-      rqst.formidable.IncomingForm = jest.fn(() => {
+      const spyForm = jest.spyOn(rqst.formidable, 'IncomingForm');
+      spyForm.mockImplementation(() => {
         return form;
       });
 
@@ -170,29 +179,82 @@ describe('Processing Request', () => {
         .parseForm(req)
         .catch(e => {
           expect(e).toEqual(formidableError);
+
+          spyForm.mockRestore();
         })
     });
 
     it('should throw error when formidable throw aborted', () => {
       const EventEmitter = require('events');
-      const req = new EventEmitter();
-      const form = req;
+      const form = new EventEmitter();
       form.parse = jest.fn();
 
       rqst = new ProcessingRequest(options);
-      rqst.formidable.IncomingForm = jest.fn(() => {
+      const spyForm = jest.spyOn(rqst.formidable, 'IncomingForm');
+      spyForm.mockImplementation(() => {
         return form;
       });
 
       setTimeout(function() {
-        req.emit('aborted');
+        form.emit('aborted');
       }, 1)
 
       return rqst
-        .parseForm(req)
+        .parseForm(form)
         .catch(e => {
           expect(e).toEqual(new Error('aborted'));
+
+          spyForm.mockRestore();
         })
+    });
+  });
+
+  describe('# parseTransformQuery', () => {
+    let rqst;
+    let options = {
+      formidable: {
+        tmpDir: require('os').tmpdir(),
+        maxFields: 1000,
+        maxFieldsSize: 2097152,
+        keepExtensions: false,
+        encoding: 'utf-8',
+        type: null,
+        multiples: false,
+      },
+      fileTypes: /\.(gif|jpe?g|png)/i
+    };
+    let queryT;
+
+    it('should return parsed object with transform string query t', () => {
+      rqst = new ProcessingRequest(options);
+      queryT = 'w_120,h_120,c_crop';
+      
+      const queryObj = rqst.parseTransformQuery(queryT);
+      return expect(queryObj).toEqual({ w: 120, h: 120, c: { crop: true }});
+    });
+
+    it('should return parsed object with merged transform string query t', () => {
+      rqst = new ProcessingRequest(options);
+      queryT = 'w_120,h_120,c_crop,c_fit,c_limit';
+      
+      const queryObj = rqst.parseTransformQuery(queryT);
+      return expect(queryObj).toEqual({ w: 120, c: { crop: true, fit: true, limit: true }, h: 120});
+    });
+
+    it('should return empty object without transform string query t', () => {
+      rqst = new ProcessingRequest(options);
+      queryT = undefined;
+      
+      const queryObj = rqst.parseTransformQuery(queryT);
+      return expect(queryObj).toEqual({});
+    });
+
+    it('should return empty object with empty string transform string query t', () => {
+      rqst = new ProcessingRequest(options);
+      queryT = '';
+      
+      const queryObj = rqst.parseTransformQuery(queryT);
+      return expect(queryObj).toEqual({});
     });
   });
 });
