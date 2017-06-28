@@ -2,7 +2,7 @@
  * Created by dobyeongsu on 2017. 6. 21..
  */
 const express = require('express');
-const ProcessingRequest = require('../../../iod/lib/control/processor/request');
+const ProcessingRequest = require('../../../iod/lib/control/processor/Request');
 const request = require('superagent');
 
 describe('Processing Request', () => {
@@ -231,6 +231,14 @@ describe('Processing Request', () => {
       
       const queryObj = rqst.parseTransformQuery(queryT);
       return expect(queryObj).toEqual({ w: 120, h: 120, c: { crop: true }});
+    });
+
+    it('should return parsed object with transform string query t not valid positive integer', () => {
+      rqst = new ProcessingRequest(options);
+      queryT = 'w_-120,h_120.5,c_crop';
+      
+      const queryObj = rqst.parseTransformQuery(queryT);
+      return expect(queryObj).toEqual({ w: 1, h: 120, c: { crop: true }});
     });
 
     it('should return parsed object with merged transform string query t', () => {

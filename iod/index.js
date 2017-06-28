@@ -76,7 +76,11 @@ class Iod {
         this.utils.checkExistDir(this.config.formidable.uploadDir)
       ]);
 
-      const [fileP, reqP] = this.Control.processor(['File', 'Request']);
+      const [
+        fileP, 
+        reqP,
+        resP,
+      ] = this.Control.processor(['File', 'Request', 'Response']);
 
       const formidableResults = await reqP.parseForm(req);
       const fileInfos = fileP.makeFileInfos(formidableResults.files);

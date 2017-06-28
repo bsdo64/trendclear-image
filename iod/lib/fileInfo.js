@@ -85,7 +85,6 @@ class FileInfo {
   toJSON() {
     return {
       size: this.size,
-      path: this.path,
       name: this.name,
       type: this.type,
       mtime: this.mtime,

@@ -2,7 +2,7 @@
  * Created by dobyeongsu on 2017. 6. 21..
  */
 const FileInfo = require('../../../iod/lib/fileInfo');
-const FileProcess = require('../../../iod/lib/control/processor/file');
+const FileProcess = require('../../../iod/lib/control/processor/File');
 const fs = require('fs');
 
 describe('Processing File', () => {

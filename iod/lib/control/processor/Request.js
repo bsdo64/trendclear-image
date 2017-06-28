@@ -34,7 +34,7 @@ class Request {
         }, prev[key]);
         
       } else {
-        prev[key] = value * 1;
+        prev[key] = value * 1 > 0 ? parseInt(value * 1) : 1;
       }
 
       return prev;

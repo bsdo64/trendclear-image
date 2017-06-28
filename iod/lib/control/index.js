@@ -1,20 +1,10 @@
 /**
  * Created by dobyeongsu on 2017. 6. 21..
  */
-const fs = require('fs');
-
-const r = fs.readdirSync(__dirname + '/processor');
-
-r.map(v => {
-  let fileName = v.slice(0, v.length - 3);
-  let upperFileName = fileName.charAt(0).toUpperCase() + fileName.slice(1);;
-
-  console.log(1);
-
-  module.exports[upperFileName]
-      = Control[upperFileName]
-      = require('./processor/' + fileName + '.js');
-});
+module.exports.Image = Control.Image = require('./processor/Image.js');
+module.exports.File = Control.File = require('./processor/File.js');
+module.exports.Request = Control.Request = require('./processor/Request.js');
+module.exports.Response = Control.Response = require('./processor/Response.js');
 
 function Control(options) {
 
