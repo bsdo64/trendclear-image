@@ -11,16 +11,18 @@ describe('Processing Image', () => {
   beforeAll(() => {
     preMock = ip.sharp;
 
-    sharpMock = jest.fn((path) => {
+    sharpMock = (path) => {
       const obj = {
-       resize: jest.fn(() => { return obj; }), 
-       metadata: jest.fn(() => { return Promise.resolve({ width: 1, height: 1 }); }), 
-       toBuffer: jest.fn(() => { return Promise.resolve(new Buffer('hello')); }), 
-       max: jest.fn(() => { return obj; }), 
+        metadata: jest.fn(() => { return Promise.resolve({ width: 1, height: 1 }); }), 
+        resize: jest.fn(() => { return obj; }), 
+        max: jest.fn(() => { return obj; }), 
+        ignoreAspectRatio: jest.fn(() => { return obj; }), 
+        toBuffer: jest.fn(() => { return Promise.resolve(new Buffer('hello')); }), 
       };
       return obj;
-    });
-    ip.sharp = sharpMock
+    };
+    
+    ip.sharp = sharpMock;
   });
 
   afterAll(() => {
@@ -184,6 +186,18 @@ describe('Processing Image', () => {
           crop: true,
           limit: true,
         },
+        h: 120,
+      };
+      return ip.convertImage('/file/path', opt)
+          .then(r => {
+            expect(r).toBeInstanceOf(Buffer);
+          })
+    });
+
+    it('should return buffer with options', () => {
+
+      const opt = {
+        w: 120,
         h: 120,
       };
       return ip.convertImage('/file/path', opt)

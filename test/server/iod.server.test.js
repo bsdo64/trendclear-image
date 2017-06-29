@@ -80,7 +80,7 @@ describe('IOD Image Server', function() {
 
     return request
       .get(url + `/iod/${hash}`)
-      .query({fn: testFiles[0].name})
+      .query({n: testFiles[0].name})
       .then((result) => {
 
         expect(result.body).toBeInstanceOf(Buffer);
@@ -90,7 +90,7 @@ describe('IOD Image Server', function() {
   it('should server throw error with invalid hash', function () {
     return request
       .get(url + `/iod/__hash__`)
-      .query({fn: testFiles[0].name})
+      .query({n: testFiles[0].name})
       .catch((error) => {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toEqual("Not Found");
@@ -101,7 +101,7 @@ describe('IOD Image Server', function() {
     return request
       .delete(url + '/iod/upload')
       .type('form')
-      .send({ fn: testFiles[0].name })
+      .send({ n: testFiles[0].name })
       .then((result) => {
 
 
@@ -115,7 +115,7 @@ describe('IOD Image Server', function() {
     return request
       .delete(url + '/iod/upload')
       .type('form')
-      .send({ fn: null })
+      .send({ n: null })
       .catch((result) => {
 
         expect(result).toBeInstanceOf(Error);
@@ -124,7 +124,7 @@ describe('IOD Image Server', function() {
       })
   });
 
-  it('should server throw error without fn parameter', function () {
+  it('should server throw error without n parameter', function () {
     return request
       .delete(url + '/iod/upload')
       .type('form')

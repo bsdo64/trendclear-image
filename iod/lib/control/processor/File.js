@@ -16,14 +16,6 @@ class File {
 
   /**
    * 
-   * @param {*} newFileName 
-   */
-  makeSaveFilePath(newFileName) {
-    return this.options.formidable.uploadDir + '/' + newFileName;
-  }
-
-  /**
-   * 
    * @param {*} files 
    */
   makeFileInfos(files) {
@@ -32,20 +24,7 @@ class File {
 
   renameFilesTmpToPublic(fileInfos) {
     const files = fileInfos.map(fileInfo => {
-      return new Promise((resolve, reject) => {
-        const newFileName = fileInfo.makeHashFileName();
-        const newFilePath = this.makeSaveFilePath(newFileName);
-
-        fs.rename(fileInfo.path, newFilePath, (err) => {
-          if (err) {
-            return reject(err);
-          }
-
-          fileInfo.updatePath(newFilePath);
-          fileInfo.updateName(newFileName);
-          resolve(fileInfo);
-        });
-      })
+      return fileInfo.renameFile(this.options.formidable.uploadDir);
     });
     return Promise.all(files)
   }

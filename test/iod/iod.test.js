@@ -92,7 +92,7 @@ describe('Class Iod', () => {
   });
 
   describe('# getLocalImage', () => {
-    let req = { query: { fn: 'test.jpg' }, params: { hash: '1ed0886e' } };
+    let req = { query: { n: 'test.jpg' }, params: { hash: '1ed0886e' } };
     const sample = {
       "public_id": "eneivicys42bq5f2jpn2",
       "version": 1473596672,
@@ -161,7 +161,7 @@ describe('Class Iod', () => {
   });
 
   describe('# deleteLocal', () => {
-    let req = { body: { fn: 'test.jpg' } };
+    let req = { body: { n: 'test.jpg' } };
 
     it('should instance of Promise', function () {
       stubCheckExistFile.mockImplementation(() => (Promise.resolve(true)));

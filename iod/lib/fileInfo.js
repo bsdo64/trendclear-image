@@ -38,15 +38,23 @@ class FileInfo {
       })
   }
 
-  renameFile(newPath) {
+  makeSaveFilePath(uploadDir, newFileName) {
+    return uploadDir + '/' + newFileName;
+  }
+
+  renameFile(uploadDir) {
     return new Promise((resolve, reject) => {
-      fs.rename(this.path, newPath, (err) => {
+      const newFileName = this.makeHashFileName();
+      const newFilePath = this.makeSaveFilePath(uploadDir, newFileName);
+
+      fs.rename(this.path, newFilePath, (err) => {
         if (err) {
           return reject(err);
         }
 
-        this.path = newPath;
-        this.sharp = sharp(newPath);
+        this.updatePath(newFilePath);
+        this.updateName(newFileName);
+        this.sharp = sharp(newFilePath);
 
         resolve(this);
       });
@@ -83,13 +91,13 @@ class FileInfo {
   }
 
   toJSON() {
-    return {
-      size: this.size,
-      name: this.name,
-      type: this.type,
-      mtime: this.mtime,
-      original_name: this.original_name,
-    }
+    delete this.path;
+    delete this.sharp;
+
+    return Object.keys(this).reduce((obj, val)=> {
+      obj[val] = this[val];
+      return obj
+    }, {});
   }
 }
 

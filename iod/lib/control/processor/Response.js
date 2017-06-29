@@ -9,10 +9,26 @@ class Response {
   }
 
   makeSendJson(fileInfos) {
-    const results = {
-      files: fileInfos.map(fileInfo => fileInfo.toJSON())
-    };
-    return results;
+    return new Promise((resolve, reject) => {
+      
+      const results = {};
+
+      const files = fileInfos.map(fileInfo => {
+        return fileInfo.initMeta();
+      });
+
+      return Promise.all(files)
+        .then(newFileInfos => {
+          results.files = newFileInfos.map(fileInfo => {
+            return fileInfo.toJSON();
+          });
+
+          return resolve(results);
+        })
+        .catch(e => {
+          reject(e);
+        })
+    })
   }
 }
 

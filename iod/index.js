@@ -15,13 +15,13 @@ class Iod {
 
   // Sending processing(ed) image
   async getLocalImage(req) {
-    if (!req || !(req && req.query) || !(req && req.query && req.query.fn)) {
+    if (!req || !(req && req.query) || !(req && req.query && req.query.n)) {
       return Promise.reject(new Error('No Req'));
     }
 
     try {
       const hash = req.params.hash;
-      const fileName = req.query.fn;
+      const fileName = req.query.n;
       const t = req.query.t;
       const getFilePath = this.utils.getPathWithFileName(fileName);
 
@@ -48,12 +48,12 @@ class Iod {
   // }
 
   async deleteLocalFile(req) {
-    if (!req || !(req && req.body) || !(req && req.body && req.body.fn)) {
+    if (!req || !(req && req.body) || !(req && req.body && req.body.n)) {
       return Promise.reject(new Error('No Req'));
     }
 
     try {
-      const getFilePath = this.utils.getPathWithFileName(req.body.fn);
+      const getFilePath = this.utils.getPathWithFileName(req.body.n);
       await this.utils.checkExistFile(getFilePath);
       const fileInfo = new FileInfo(getFilePath);
       const newFile = await fileInfo.deleteFile();
@@ -86,10 +86,7 @@ class Iod {
       const fileInfos = fileP.makeFileInfos(formidableResults.files);
       const newFileInfos = await fileP.renameFilesTmpToPublic(fileInfos);
 
-      const results = {};
-      results.files = newFileInfos.map(fileInfo => fileInfo.toJSON());
-
-      return results;
+      return await resP.makeSendJson(newFileInfos);
 
     } catch (e) {
       throw e;
