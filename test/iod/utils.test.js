@@ -31,7 +31,7 @@ describe('Class Utils', () => {
       expect(utils).hasOwnProperty('getPathWithFileName');
     });
   });
-
+  
   describe('# hash', () => {
     it('should return hashs with string', () => {
       const hashString = utils.hash('someString');
