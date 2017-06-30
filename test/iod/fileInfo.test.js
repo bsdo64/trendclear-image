@@ -3,6 +3,7 @@ const {resolve} = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const shortId = require('shortid');
+const crypto = require('crypto');
 
 describe('FileInfo', () => {
   const path = resolve(__dirname, './test.jpg');
@@ -28,6 +29,16 @@ describe('FileInfo', () => {
       expect(file).toBeInstanceOf(fileInfo);
     });
   });
+
+  describe('# set', () => {
+    it('should set property', () => {
+      const newFile = file.set('test', 'abc');
+
+      expect(file.test).toEqual('abc');
+      expect(newFile.test).toEqual('abc');
+      expect(newFile.get('test')).toEqual('abc');
+    })
+  })
 
   describe('# initMeta', () => {
     it('should set properties with metadata', async() => {
@@ -117,6 +128,22 @@ describe('FileInfo', () => {
       } catch (e) {
         expect(e).toEqual(error);
       }
+    });
+  });
+
+  describe('# hash', () => {
+    it('should accept parameter data', () => {
+      const expectString = crypto.createHash('md5').update('helloworld').digest("hex").slice(0,8);
+
+      const result = file.hash('helloworld');
+      expect(result).toEqual(expectString);
+    });
+
+    it('should accept parameter data and secret', () => {
+      const expectString = crypto.createHash('md5').update('helloworldsecret').digest("hex").slice(0,8);
+
+      const result = file.hash('helloworld', 'secret');
+      expect(result).toEqual(expectString);
     });
   });
 });

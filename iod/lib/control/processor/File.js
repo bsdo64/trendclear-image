@@ -14,6 +14,17 @@ class File {
     this.options = options;
   }
 
+  initUrls(fileInfos) {
+    return fileInfos.map(fileInfo => {
+      const url = this.options.server.publicUrl + 
+                  '/' + 
+                  fileInfo.hash(fileInfo.get('name'), this.options.secret) + 
+                  '?n=' + 
+                  fileInfo.get('name');
+
+      return fileInfo.set('url', url);
+    });
+  }
   /**
    * 
    * @param {*} files 
