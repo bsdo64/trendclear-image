@@ -16,7 +16,8 @@ module.exports = {
     port: '3002',
     hostname: 'localhost',
     publicPath: publicPath,
-    filesDir: iodFilesDir
+    filesDir: iodFilesDir,
+    publicUrl: 'http://img.venacle.com' + '/iod'
   },
   formidable: {
     tmpDir: iodTempDir,

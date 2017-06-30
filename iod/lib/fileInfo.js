@@ -5,6 +5,7 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 const shortId = require('shortid');
+const crypto = require('crypto');
 
 class FileInfo {
   constructor(file) {
@@ -25,6 +26,27 @@ class FileInfo {
     }
 
     this.sharp = sharp(this.path);
+  }
+
+  hash(s, secret) {
+    let str;
+    if (secret) {
+      str = s + secret;
+    } else {
+      str = s;
+    }
+
+    return crypto.createHash('md5').update(str).digest("hex").slice(0,8)
+  }
+
+  set(prop, val) {
+    this[prop] = val;
+
+    return this;
+  }
+
+  get(prop) {
+    return this[prop];
   }
 
   initMeta() {

@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
+const FileInfo = require('../../iod/lib/fileInfo.js')
 let Iod = require('../../iod/index.js');
 
 describe('Class Iod', () => {
   let server;
-  let stubProcessor, stubCheckExistFile, stubConverImg, stubParseForm, stubCheckExistDir, stubTransFormQuery;
+  let stubProcessor, stubHashMatchs, stubCheckExistFile, stubConverImg, 
+      stubParseForm, stubCheckExistDir, stubTransFormQuery, stubFileInfoDelete;
 
   beforeAll(() => {
     server = app.listen(8080, () => {});
@@ -17,17 +19,29 @@ describe('Class Iod', () => {
   beforeEach(()=> {
     stubCheckExistDir = jest.spyOn(Iod.utils, 'checkExistDir');
     stubCheckExistFile = jest.spyOn(Iod.utils, 'checkExistFile');
+    stubHashMatchs = jest.spyOn(Iod.utils, 'hashMatches');
     stubParseForm = jest.fn();
     stubTransFormQuery = jest.fn().mockImplementation(() => {});
     stubConverImg = jest.fn();
+    stubFileInfoDelete = jest.spyOn(FileInfo.prototype, 'deleteFile');
     stubProcessor = jest.spyOn(Iod.Control, 'processor');
     stubProcessor.mockImplementation((name) => {
+      const self = this;
+
+      this.File = {
+        initUrls: jest.fn(() => self.File),
+        renameFilesTmpToPublic: jest.fn(() => Promise.resolve()),
+        makeFileInfos: jest.fn(),
+      };
       this.Image = {
         convertImage: stubConverImg
       };
       this.Request = {
         parseForm: stubParseForm,
         parseTransformQuery: stubTransFormQuery,
+      };
+      this.Response = {
+        makeSendJson: jest.fn(() => ({the: 'response'})),
       };
 
       if (Array.isArray(name)) {
@@ -42,6 +56,8 @@ describe('Class Iod', () => {
     stubProcessor.mockRestore();
     stubCheckExistDir.mockRestore();
     stubCheckExistFile.mockRestore();
+    stubHashMatchs.mockRestore();
+    stubFileInfoDelete.mockRestore();
   });
 
   describe('Constructor', () => {
@@ -77,17 +93,29 @@ describe('Class Iod', () => {
       })
     });
 
-    it('should throw error with no args', async() => {
+    it('should throw error with no args', () => {
+      stubParseForm.mockImplementation(() => Promise.reject(new Error('No Request params')));
 
-      try {
-        stubParseForm.mockImplementation(() => Promise.reject(new Error('No Request params')));
+      return Iod.postLocal()
+        .catch(err => {
+          expect(err).toBeInstanceOf(Error);
+          expect(err.message).toEqual('No Request params');
+        })
+    });
 
-        await Iod.postLocal();
-      } catch (e) {
+    it('should return json results', () => {
+      
+      stubCheckExistDir.mockImplementation(() => Promise.resolve());
+      stubParseForm.mockImplementation(() => Promise.resolve({files: ['/path1', '/path2']}));
 
-        expect(e).toBeInstanceOf(Error);
-        expect(e.message).toEqual('No Request params');
-      }
+      return Iod.postLocal({})
+        .then(r => {
+          expect(r).toEqual({the: 'response'});
+        })
+        .catch(err => {
+          expect(err).toBeInstanceOf(Error);
+          expect(err.message).toEqual('No Request params');
+        })
     });
   });
 
@@ -142,6 +170,17 @@ describe('Class Iod', () => {
         })
     });
 
+    it('should throw error hash not match', function () {
+
+      const expectError =  new Error("Hash doesn't match");
+      stubHashMatchs.mockImplementation(() => (Promise.reject(expectError)));
+
+      return Iod.getLocalImage(req)
+        .catch(e => {
+          expect(e).toEqual(expectError);
+        })
+    });
+
     it('should return result of buffer image', function () {
 
       const buff = new Buffer('test');
@@ -157,7 +196,7 @@ describe('Class Iod', () => {
           console.log(e);
           expect(e).toBeNull();
         })
-    })
+    });
   });
 
   describe('# deleteLocal', () => {
@@ -183,6 +222,21 @@ describe('Class Iod', () => {
         .catch(result => {
           expect(result).toBeInstanceOf(Error);
           expect(result.message).toEqual(expectedError.message);
+        })
+    });
+
+    it('should return deleted file', function () {
+
+      const expectResult = { name: 'fileName', };
+      stubCheckExistFile.mockImplementation(() => Promise.resolve());
+      stubFileInfoDelete.mockImplementation(() => expectResult);
+
+      return Iod.deleteLocalFile(req)
+        .then(r => {
+          expect(r.deleted).toEqual(expectResult);
+        })
+        .catch(err => {
+          expect(err).toBeNull();
         })
     });
   });
