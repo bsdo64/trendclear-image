@@ -1,7 +1,7 @@
 /**
  * Created by dobyeongsu on 2017. 6. 21..
  */
-const ImageProcess = require('../../../iod/lib/control/processor/Image');
+const ImageProcess = require('../../../../iod/lib/control/processor/Image');
 
 describe('Processing Image', () => {
   const options = {};  

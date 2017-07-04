@@ -11,6 +11,7 @@ router.get('/:hash', function (req, res) {
 
   let image = cache.get(req.url);
   if (image) {
+    res.set('cache-control', 'public, max-age=86400, no-transform')
     res.type(image.info.format);
     return res.send(image.data);
   }
@@ -24,6 +25,8 @@ router.get('/:hash', function (req, res) {
     .getLocalImage(req)
     .then(image => {
       cache.set(req.url, image);
+
+      res.set('cache-control', 'public, max-age=86400, no-transform')
       res.type(image.info.format);
       res.send(image.data);
     })

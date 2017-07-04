@@ -4,11 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "test:watch": "DEV=WHATCHING nodemon --exec node --trace-warnings node_modules/.bin/gulp",
-    "dev:start": "nodemon bin/www.js",
-    "test:cov": "DEV=WHATCHING nodemon --watch ./ node_modules/.bin/nyc --reporter=html --reporter=text mocha --recursive",
-    "jest": "DEV=WHATCHING jest test/iod/ --watch --coverage"
+    "start:dev": "nodemon bin/www.js",
+    "jest:unit": "DEV=WHATCHING jest test/unit/ --watch --coverage",
+    "jest:int": "DEV=WHATCHING jest test/integration/ --watch --coverage",
+    "jest": "DEV=WHATCHING jest test/ --watch --coverage"
   },
   "jest": {
     "testMatch": [

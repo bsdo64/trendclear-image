@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('../../iod/config');
-const Utils = require('../../iod/lib/utils');
+const config = require('../../../iod/config');
+const Utils = require('../../../iod/lib/utils');
 
 describe('Class Utils', () => {
   const utils = new Utils(config);

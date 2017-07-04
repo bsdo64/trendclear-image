@@ -1,5 +1,5 @@
-const Control = require('../../iod/lib/control/index.js');
-const {Image, Request, Response, File} = require('../../iod/lib/control/index.js');
+const Control = require('../../../iod/lib/control/index.js');
+const {Image, Request, Response, File} = require('../../../iod/lib/control/index.js');
 
 describe('Control', () => {
   describe('Constructor', () => {

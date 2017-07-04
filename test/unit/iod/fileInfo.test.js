@@ -1,4 +1,4 @@
-const fileInfo = require('../../iod/lib/fileInfo');
+const fileInfo = require('../../../iod/lib/fileInfo');
 const {resolve} = require('path');
 const fs = require('fs');
 const sharp = require('sharp');

@@ -84,7 +84,9 @@ class Iod {
 
       const formidableResults = await reqP.parseForm(req);
       const fileInfos = fileP.makeFileInfos(formidableResults.files);
-      const newFileInfos = await fileP.initUrls(fileInfos).renameFilesTmpToPublic(fileInfos);
+      const newFileInfos = await fileP.renameFilesTmpToPublic(fileInfos);
+
+      fileP.initUrls(fileInfos);
 
       return await resP.makeSendJson(newFileInfos);
 

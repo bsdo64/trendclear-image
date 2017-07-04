@@ -61,7 +61,7 @@ describe('IOD Image Server', function() {
   it('should server post image', function () {
     return request
       .post(url + '/iod/upload')
-      .type('png')
+      .type('jpg')
       .attach('image_file', __dirname + '/test.jpg', 'test.jpg')
       .field('user[name]', 'Tobi')
       .field('user[name]', 'Tobi1')
@@ -72,7 +72,10 @@ describe('IOD Image Server', function() {
         expect(result.body.files[0]).toHaveProperty('original_name', 'test.jpg');
 
         testFiles = result.body.files;
-      });
+      })
+      .catch(err => {
+        expect(err).toBeNull();
+      })
   });
 
   it('should server get image', function () {

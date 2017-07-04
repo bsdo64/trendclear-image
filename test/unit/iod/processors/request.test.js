@@ -2,7 +2,7 @@
  * Created by dobyeongsu on 2017. 6. 21..
  */
 const express = require('express');
-const ProcessingRequest = require('../../../iod/lib/control/processor/Request');
+const ProcessingRequest = require('../../../../iod/lib/control/processor/Request');
 const request = require('superagent');
 
 describe('Processing Request', () => {

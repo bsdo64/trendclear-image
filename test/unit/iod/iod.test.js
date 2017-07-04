@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-const FileInfo = require('../../iod/lib/fileInfo.js')
-let Iod = require('../../iod/index.js');
+const FileInfo = require('../../../iod/lib/fileInfo.js')
+let Iod = require('../../../iod/index.js');
 
 describe('Class Iod', () => {
   let server;
