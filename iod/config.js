@@ -24,6 +24,7 @@ module.exports = {
     uploadDir: iodFilesDir,
     maxFields: 1000,
     maxFieldsSize: 2 * 1024 * 1024,
+    maxFileSize: 2 * 1024 * 1024,
     keepExtensions: false,
     encoding: 'utf-8',
     headers: null,

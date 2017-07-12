@@ -50,7 +50,14 @@ class Request {
 
       const form = this.formidable.IncomingForm();
       const {
-        tmpDir, keepExtensions, maxFields, maxFieldsSize, encoding, type, multiples
+        tmpDir, 
+        keepExtensions, 
+        maxFields, 
+        maxFieldsSize, 
+        maxFileSize, 
+        encoding, 
+        type, 
+        multiples
       } = this.options.formidable;
 
       form.uploadDir = tmpDir;
@@ -60,6 +67,7 @@ class Request {
       form.encoding = encoding;
       form.type = type;
       form.multiples = multiples;
+      form.maxFileSize = maxFileSize;
 
       form.on('error', (e) => {
         reject(e);
@@ -82,6 +90,16 @@ class Request {
         this.files.push(value);
         this.fileFields[name] = this.fileFields[name] || [];
         this.fileFields[name].push(value)
+      });
+
+      form.on('progress', (bytesReceived, bytesExpected) => {
+        if (bytesExpected > form.maxFileSize) {
+          return reject(new Error('Max file size sceeded!'));
+        }
+
+        if (bytesReceived > form.maxFileSize) {
+          return reject(new Error('Max file size sceeded!'));
+        }
       });
 
       form.on('field', (name, value) => {

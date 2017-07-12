@@ -9,6 +9,7 @@ describe('IOD Image Server', function() {
     formidable: {
       maxFields: 1000,
       maxFieldsSize: 2 * 1024 * 1024,
+      maxFileSize: 2 * 1024 * 1024,
       keepExtensions: false,
       uploadDir: __dirname + '/tmp',
       encoding: 'utf-8',
@@ -58,6 +59,17 @@ describe('IOD Image Server', function() {
       })
   });
 
+  it('should throw error with big file', function () {
+    return request
+      .post(url + '/iod/upload')
+      .attach('image_file', __dirname + '/test.gif')
+      .catch((error) => {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.status).toEqual(404);
+        expect(error.message).toEqual('Not Found');
+      })
+  });
+
   it('should server post image', function () {
     return request
       .post(url + '/iod/upload')
@@ -78,7 +90,35 @@ describe('IOD Image Server', function() {
       })
   });
 
+  it('should server post some images', function () {
+    return request
+      .post(url + '/iod/upload')
+      .type('jpg')
+      .attach('image_file', __dirname + '/test.jpg', 'test.jpg')
+      .attach('image_file', __dirname + '/test.jpg', 'test.jpg')
+      .then((result) => {
+
+        expect(result.body).toHaveProperty('files');
+        expect(result.body.files.length).toBe(2);
+      })
+      .catch(err => {
+        expect(err).toBeNull();
+      })
+  });
+
   it('should server get image', function () {
+    const hash = Iod.utils.hash(testFiles[0].name);
+
+    return request
+      .get(url + `/iod/${hash}`)
+      .query({n: testFiles[0].name})
+      .then((result) => {
+
+        expect(result.body).toBeInstanceOf(Buffer);
+      })
+  });
+
+  it('should server get cache image', function () {
     const hash = Iod.utils.hash(testFiles[0].name);
 
     return request
@@ -106,7 +146,6 @@ describe('IOD Image Server', function() {
       .type('form')
       .send({ n: testFiles[0].name })
       .then((result) => {
-
 
         expect(result.body.deleted).toHaveProperty('name');
         expect(result.body.deleted).toHaveProperty('name');
