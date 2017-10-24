@@ -27,10 +27,10 @@
   "dependencies": {
     "async": "^0.9.0",
     "aws-sdk": "^2.3.7",
-    "body-parser": "^1.15.0",
-    "compression": "^1.6.2",
+    "body-parser": "^1.18.2",
+    "compression": "^1.7.1",
     "debug": "^2.6.8",
-    "express": "^4.13.4",
+    "express": "^4.16.2",
     "formidable": "^1.1.1",
     "lru-cache": "^4.1.1",
     "mkdirp": "^0.5.1",
@@ -46,12 +46,12 @@
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "form-data": "^2.2.0",
+    "form-data": "^2.3.1",
     "gulp": "^3.9.1",
     "gulp-mocha": "^4.3.1",
     "jest": "^20.0.4",
-    "nodemon": "^1.11.0",
-    "superagent": "^3.5.2"
+    "nodemon": "^1.12.1",
+    "superagent": "^3.7.0"
   },
   "repository": "git@github.com:bsdo64/trendclear-image.git"
 }
